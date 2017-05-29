@@ -1,0 +1,20 @@
+<phpunit bootstrap="tests/autoload.php"
+         colors="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         stopOnFailure="false">
+
+    <testsuites>
+        <testsuite name="Blink seed test suite">
+            <directory>./tests/</directory>
+        </testsuite>
+    </testsuites>
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="false">
+        </whitelist>
+    </filter>
+    <php>
+        <env name="BLINK_ENV" value="test"/>
+    </php>
+</phpunit>

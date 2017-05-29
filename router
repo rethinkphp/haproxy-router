@@ -1,0 +1,10 @@
+#! /usr/bin/env php
+<?php
+
+require __DIR__ . '/vendor/autoload.php';
+
+$server = new blink\server\CliServer([
+    'bootstrap' => __DIR__ . '/src/bootstrap.php'
+]);
+
+exit($server->run());
