@@ -78,7 +78,7 @@ return [
      *
      */
 
-    'controllerNamespace' => '\app\http\controllers',
+    'controllerNamespace' => '\rethink\hrouter\restapi',
 
     /*------------------------------------------------------------------
      * Application Commands

@@ -9,12 +9,6 @@ A service router and api gateway based on HAProxy.
 * Host and URL based Routing
 * URL Rewriting
 
-## Installation
+## Documentation
 
-```bash
-git clone https://github.com/rethinkphp/haproxy-router.git
-composer install
-./router server:serve
-```
-
-
+[API Docs](docs/api.md)

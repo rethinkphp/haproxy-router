@@ -1,6 +1,6 @@
 {
-    "name" : "blink/seed",
-    "description": "A seed application for Blink Framework",
+    "name" : "rethink/haproxy-router",
+    "description": "A service router and api gateway based on HAProxy",
     "authors" : [
         {
             "name" : "Jin Hu",
@@ -15,17 +15,12 @@
     },
     "autoload": {
         "psr-4": {
-            "app\\": "src",
-            "app\\tests\\": "tests"
+            "rethink\\hrouter\\": "src",
+            "rethink\\hrouter\\tests\\": "tests"
         }
     },
     "minimum-stability": "stable",
     "config": {
         "vendor-dir": "vendor"
-    },
-    "scripts": {
-        "post-root-package-install": [
-            "php -r \"mkdir('runtime/sessions');\""
-        ]
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace app\tests;
+namespace rethink\hrouter\tests;
 
 use blink\testing\TestCase as BaseTestCase;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace app\http\controllers;
+namespace rethink\hrouter\restapi;
 
 use blink\core\Object;
 
