@@ -30,7 +30,7 @@ return [
         'targets' => [
             'file' => [
                 'class' => 'blink\log\StreamTarget',
-                'enabled' => true,
+                'enabled' => BLINK_ENV != 'test',
                 'stream' => 'php://stderr',
                 'level' => 'info',
             ]
