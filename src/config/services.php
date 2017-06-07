@@ -6,7 +6,9 @@ return [
     ],
     'response' => [
         'class' => \blink\http\Response::class,
-        'middleware' => [],
+        'middleware' => [
+            \rethink\hrouter\restapi\middleware\ResponseFormatter::class,
+        ],
     ],
     'session' => [
         'class' => 'blink\session\Manager',
