@@ -100,6 +100,10 @@ class Haproxy extends Object
      */
     public function start(&$output = null)
     {
+        if (file_exists($this->pidFile)) {
+            return false;
+        }
+
         $this->configure();
 
         $command = sprintf(

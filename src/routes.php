@@ -14,6 +14,8 @@ return [
     ['PUT', '/services/{id}/nodes/{nodeId}', 'NodeController@update'],
     ['DELETE', '/services/{id}/nodes/{nodeId}', 'NodeController@delete'],
 
+    ['PUT', '/stats', 'StatsController@update'],
+
     ['POST', '/transactions', 'TransactionController@create'],
     ['PUT', '/transactions', 'TransactionController@update'],
 ];
