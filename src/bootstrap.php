@@ -10,7 +10,7 @@ $config = require __DIR__ . '/config/app.php';
 /**
  * Loading routes definitions.
  */
-$config['routes'] = __DIR__ . '/restapi/routes.php';
+$config['routes'] = __DIR__ . '/routes.php';
 
 /**
  * Loading application service definitions.
