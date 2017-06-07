@@ -15,6 +15,17 @@ function normalize_path($path) {
     }, 0);
 }
 
+function array_index(array $array, $key)
+{
+    $indexed = [];
+
+    foreach ($array as $item) {
+        $indexed[$item[$key]] = $item;
+    }
+
+    return $indexed;
+}
+
 /**
  * @return \rethink\hrouter\Haproxy
  */

@@ -57,7 +57,7 @@ class ServiceController extends BaseController
     {
         $api = $this->getApi();
 
-        return $api->findServiceByName($name);
+        return $api->findService($name);
     }
 
     public function delete($name)

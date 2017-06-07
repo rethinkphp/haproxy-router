@@ -8,11 +8,11 @@ return [
     ['PUT', '/services/{id}', 'ServiceController@update'],
     ['DELETE', '/services/{id}', 'ServiceController@delete'],
 
-    ['GET', '/services/:id/servers', 'ServerController@index'],
-    ['POST', '/services/:id/servers', 'ServerController@create'],
-    ['GET', '/services/:id/servers/:serverId', 'ServerController@view'],
-    ['PUT', '/services/:id/servers/:serverId', 'ServerController@update'],
-    ['DELETE', '/services/:id/servers/:serverId', 'ServerController@delete'],
+    ['GET', '/services/{id}/nodes', 'NodeController@index'],
+    ['POST', '/services/{id}/nodes', 'NodeController@create'],
+    ['GET', '/services/{id}/nodes/{nodeId}', 'NodeController@view'],
+    ['PUT', '/services/{id}/nodes/{nodeId}', 'NodeController@update'],
+    ['DELETE', '/services/{id}/nodes/{nodeId}', 'NodeController@delete'],
 
     ['POST', '/transactions', 'TransactionController@create'],
     ['PUT', '/transactions', 'TransactionController@update'],

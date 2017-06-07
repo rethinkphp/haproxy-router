@@ -26,7 +26,32 @@ class CfgApi extends Object
 
         $contents = file_get_contents($configFile);
 
-        $this->_config = Json::decode($contents);
+        $this->_config = $this->indexConfig(Json::decode($contents));
+    }
+
+    protected function indexConfig($config)
+    {
+        $config['services']= array_index($config['services'] ?? [], 'name');
+
+        foreach ($config['services'] as &$service) {
+            if (isset($service['nodes'])) {
+                $service['nodes'] = array_index($service['nodes'], 'name');
+            }
+        }
+
+        return $config;
+    }
+
+    protected function normalizeConfig($config)
+    {
+        $config['services'] = array_values($config['services'] ?? []);
+
+        foreach ($config['services'] as &$service) {
+            if (isset($service['nodes'])) {
+                $service['nodes'] = array_values($service['nodes']);
+            }
+        }
+        return $config;
     }
 
     /**
@@ -34,20 +59,30 @@ class CfgApi extends Object
      */
     public function findServices()
     {
-        return $this->_config['services']  ?? [];
+        return array_values($this->_config['services']  ?? []);
+    }
+
+    /**
+     * @param $name
+     * @return bool
+     */
+    public function hasService($name)
+    {
+        return isset($this->_config['services'][$name]);
     }
 
     /**
      * @param $name
      * @return array|null
      */
-    public function findServiceByName($name)
+    public function findService($name)
     {
-        foreach ($this->findServices() as $service) {
-            if ($service['name'] == $name) {
-                return $service;
-            }
-        }
+        return $this->_config['services'][$name] ?? null;
+    }
+
+    public function &findServiceForUpdate($name)
+    {
+        return $this->_config['services'][$name];
     }
 
     /**
@@ -61,7 +96,7 @@ class CfgApi extends Object
      */
     public function createService($name, $host, $params = [])
     {
-        if ($this->findServiceByName($name)) {
+        if ($this->findService($name)) {
             throw ValidationException::fromArgs('name', "The service '$name' is already exists");
         }
 
@@ -75,57 +110,105 @@ class CfgApi extends Object
 
     public function updateService($name, array $params)
     {
-        $service = $this->findServiceByName($name);
+        $service = &$this->findServiceForUpdate($name);
 
         if (!$service) {
             throw new InvalidParamException("The service '$name' does not exists");
         }
 
-        $services = $this->findServices();
+        $service = array_merge($service, $params);
 
-        foreach ($services as $key => $service) {
-            if ($service['name'] == $name) {
-                $services[$key] = array_merge($service, $params);
-                break;
-            }
-        }
-
-        $this->_config['services'] = $services;
-
-        return $services[$key];
+        return $service;
     }
 
     public function deleteService($name)
     {
-        $services = $this->findServices();
+        unset($this->_config['services'][$name]);
+    }
 
-        foreach ($services as $key => $service) {
-            if ($service['name'] == $name) {
-                unset($services[$key]);
-                break;
-            }
+    /**
+     * @param string $serviceName
+     * @return array
+     */
+    public function findNodes(string $serviceName)
+    {
+        if (!$this->hasService($serviceName)) {
+            throw new InvalidParamException("The service '$serviceName' does not exists");
         }
 
-        $this->_config['services'] = $services;
+        $service = $this->findService($serviceName);
+
+        return array_values($service['nodes'] ?? []);
     }
 
-    public function addNode($serviceName, $nodeName, $def)
+    public function findNode(string $serviceName, string $nodeName)
     {
+        if (!($service = $this->findService($serviceName))) {
+            throw new InvalidParamException("The service '$serviceName' does not exists");
+        }
 
+        return $service['nodes'][$nodeName] ?? null;
     }
 
-    public function updateNode($serviceName, $nodeName, $def)
+    /**
+     * @param $serviceName
+     * @param $nodeName
+     * @param array $def
+     * @return array
+     */
+    public function addNode(string $serviceName, string $nodeName, array $def)
     {
+        if (!$this->hasService($serviceName)) {
+            throw new InvalidParamException("The service '$serviceName' does not exists");
+        }
 
+        $service = &$this->findServiceForUpdate($serviceName);
+
+        if (isset($service['nodes'][$nodeName])) {
+            throw ValidationException::fromArgs('name', "The node '$nodeName' is already exists");
+        }
+
+        $def['name'] = $nodeName;
+
+        $service['nodes'][$nodeName] = $def;
+
+        return $def;
     }
 
-    public function deleteNode($serviceName, $nodeName)
-    {
 
+    public function updateNode(string $serviceName, string $nodeName, array $def)
+    {
+        if (!$this->hasService($serviceName)) {
+            throw new InvalidParamException("The service '$serviceName' does not exists");
+        }
+
+        $service = &$this->findServiceForUpdate($serviceName);
+
+        if (!isset($service['nodes'][$nodeName])) {
+            throw new InvalidParamException("The node '$nodeName' does not exists");
+        }
+
+        $node = &$service['nodes'][$nodeName];
+        $node = array_merge($node, $def);
+
+        return $node;
+    }
+
+    public function deleteNode(string $serviceName, string $nodeName)
+    {
+        if (!$this->hasService($serviceName)) {
+            throw new InvalidParamException("The service '$serviceName' does not exists");
+        }
+
+        $service = &$this->findServiceForUpdate($serviceName);
+
+        unset($service['nodes'][$nodeName]);
     }
 
     public function persist()
     {
-        file_put_contents(app()->runtime . '/config.json', Json::encode($this->_config));
+        $config = $this->normalizeConfig($this->_config);
+
+        file_put_contents(app()->runtime . '/config.json', Json::encode($config));
     }
 }

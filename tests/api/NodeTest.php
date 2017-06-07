@@ -5,11 +5,11 @@ namespace rethink\hrouter\tests\api;
 use rethink\hrouter\tests\TestCase;
 
 /**
- * Class ServiceTest
+ * Class NodeTest
  *
  * @package rethink\hrouter\tests\api
  */
-class ServiceTest extends TestCase
+class NodeTest extends TestCase
 {
     use ScenarioTrait;
 
@@ -23,82 +23,91 @@ class ServiceTest extends TestCase
     public function scenarios()
     {
         return [
-            // Create a service named foo
             [
                 'method' => 'post',
                 'path' => '/services',
                 'body' => [
-                    'name' => 'foo',
-                    'host' => 'foo.rethinkphp.com',
+                    'name' => 'rethink',
+                    'host' => 'rethinkphp.com',
                 ],
                 'expectedStatus' => 201,
             ],
 
-            // Create a service named bar
+            [
+                'method' => 'get',
+                'path' => '/services/rethink/nodes',
+                'expectedStatus' => 200,
+                'expectedBody' => [],
+            ],
+
             [
                 'method' => 'post',
-                'path' => '/services',
+                'path' => '/services/rethink/nodes',
                 'body' => [
-                    'name' => 'bar',
-                    'host' => 'bar.rethinkphp.com',
+                    'name' => 'node1',
+                    'host' => '127.0.0.1:8899',
                 ],
                 'expectedStatus' => 201,
             ],
 
-            // Trying to create a service with duplicated name
             [
                 'method' => 'post',
-                'path' => '/services',
+                'path' => '/services/rethink/nodes',
                 'body' => [
-                    'name' => 'foo',
-                    'host' => 'foo.rethinkphp.com',
+                    'name' => 'node2',
+                    'host' => '127.0.0.1:8889',
+                ],
+                'expectedStatus' => 201,
+            ],
+
+            // Create a node with duplicated name
+            [
+                'method' => 'post',
+                'path' => '/services/rethink/nodes',
+                'body' => [
+                    'name' => 'node2',
+                    'host' => '127.0.0.1:8889',
                 ],
                 'expectedStatus' => 422,
                 'expectedBody' => [
                     [
-                        'message' => "The service 'foo' is already exists",
                         'field' => 'name',
+                        'message' => "The node 'node2' is already exists",
                     ]
                 ],
             ],
 
-            // Updating service foo to foo2
+            // Updating a node1's host
             [
                 'method' => 'put',
-                'path' => '/services/foo',
+                'path' => '/services/rethink/nodes/node1',
                 'body' => [
-                    'name' => 'foo2',
-                    'host' => 'foo2.rethinkphp.com',
+                    'host' => '127.0.0.2:80',
                 ],
                 'expectedStatus' => 200,
-                'expectedBody' => [
-                    'name' => 'foo2',
-                    'host' => 'foo2.rethinkphp.com',
-                ],
             ],
 
-            // Deleting service bar
+            // Deleting node2
             [
                 'method' => 'delete',
-                'path' => '/services/bar',
+                'path' => '/services/rethink/nodes/node2',
                 'expectedStatus' => 204,
             ],
 
-            // Get all services
+            // Getting all nodes
             [
                 'method' => 'get',
-                'path' => '/services',
+                'path' => '/services/rethink/nodes',
                 'expectedStatus' => 200,
                 'expectedBody' => [
                     [
-                        'name' => 'foo2',
-                        'host' => 'foo2.rethinkphp.com',
+                        'name' => 'node1',
+                        'host' => '127.0.0.2:80',
                     ]
                 ],
-            ],
+            ]
         ];
     }
-
 
     public function testBasic()
     {
