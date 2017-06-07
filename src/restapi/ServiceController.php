@@ -39,6 +39,8 @@ class ServiceController extends BaseController
 
         $api->persist();
 
+        haproxy()->reload(true);
+
         return $this->ok($service);
     }
 
@@ -49,6 +51,8 @@ class ServiceController extends BaseController
         $service = $api->updateService($name, $request->body->all());
 
         $api->persist();
+
+        haproxy()->reload(true);
 
         return $this->ok($service, 200);
     }
@@ -67,6 +71,8 @@ class ServiceController extends BaseController
         $api->deleteService($name);
 
         $api->persist();
+
+        haproxy()->reload(true);
 
         return $this->noContent();
     }

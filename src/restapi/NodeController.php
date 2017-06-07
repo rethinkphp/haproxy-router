@@ -37,6 +37,8 @@ class NodeController extends BaseController
 
         $api->persist();
 
+        haproxy()->reload(true);
+
         return $this->ok($node);
     }
 
@@ -55,6 +57,8 @@ class NodeController extends BaseController
 
         $api->persist();
 
+        haproxy()->reload(true);
+
         return $this->ok($node, 200);
     }
 
@@ -65,6 +69,8 @@ class NodeController extends BaseController
         $api->deleteNode($serviceId, $nodeId);
 
         $api->persist();
+
+        haproxy()->reload(true);
 
         return $this->noContent();
     }

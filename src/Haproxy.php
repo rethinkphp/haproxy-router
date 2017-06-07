@@ -48,12 +48,17 @@ class Haproxy extends Object
     /**
      * Reload the running HAProxy instance
      *
+     * @param boolean $reconfigure
      * @return boolean
      */
-    public function reload()
+    public function reload($reconfigure = false)
     {
         if (!file_exists($this->pidFile)) {
             return false;
+        }
+
+        if ($reconfigure) {
+            $this->configure();
         }
 
         $pid = file_get_contents($this->pidFile);
