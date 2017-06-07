@@ -5,6 +5,8 @@ namespace rethink\hrouter;
 use blink\core\InvalidParamException;
 use blink\core\Object;
 use blink\support\Json;
+use rethink\hrouter\entities\NodeEntity;
+use rethink\hrouter\entities\ServiceEntity;
 use rethink\hrouter\support\ValidationException;
 
 /**
@@ -31,11 +33,13 @@ class CfgApi extends Object
 
     protected function indexConfig($config)
     {
-        $config['services']= array_index($config['services'] ?? [], 'name');
+        $config['services'] = array_index($config['services'] ?? [], 'name');
+        $config['services'] = array_map([ServiceEntity::class, 'fromArray'], $config['services']);
 
         foreach ($config['services'] as &$service) {
             if (isset($service['nodes'])) {
                 $service['nodes'] = array_index($service['nodes'], 'name');
+                $service['nodes'] = array_map([NodeEntity::class, 'fromArray'], $service['nodes']);
             }
         }
 
@@ -80,8 +84,16 @@ class CfgApi extends Object
         return $this->_config['services'][$name] ?? null;
     }
 
-    public function &findServiceForUpdate($name)
+    /**
+     * @param $name
+     * @return ServiceEntity
+     */
+    public function findServiceForUpdate($name)
     {
+        if (!$this->hasService($name)) {
+            throw new InvalidParamException("The service '$name' does not exists");
+        }
+
         return $this->_config['services'][$name];
     }
 
@@ -110,13 +122,13 @@ class CfgApi extends Object
 
     public function updateService($name, array $params)
     {
-        $service = &$this->findServiceForUpdate($name);
+        $service = $this->findServiceForUpdate($name);
 
         if (!$service) {
             throw new InvalidParamException("The service '$name' does not exists");
         }
 
-        $service = array_merge($service, $params);
+        $service->merge($params);
 
         return $service;
     }
@@ -151,18 +163,30 @@ class CfgApi extends Object
     }
 
     /**
+     * @param string $serviceName
+     * @param string $nodeName
+     * @return NodeEntity
+     */
+    public function findNodeForUpdate(string $serviceName, string $nodeName)
+    {
+        $service = $this->findServiceForUpdate($serviceName);
+
+        if (!isset($service['nodes'][$nodeName])) {
+            throw new InvalidParamException("The node '$nodeName' does not exists");
+        }
+
+        return $service['nodes'][$nodeName];
+    }
+    /**
      * @param $serviceName
      * @param $nodeName
      * @param array $def
-     * @return array
+     * @return NodeEntity
+     * @throws ValidationException
      */
     public function addNode(string $serviceName, string $nodeName, array $def)
     {
-        if (!$this->hasService($serviceName)) {
-            throw new InvalidParamException("The service '$serviceName' does not exists");
-        }
-
-        $service = &$this->findServiceForUpdate($serviceName);
+        $service = $this->findServiceForUpdate($serviceName);
 
         if (isset($service['nodes'][$nodeName])) {
             throw ValidationException::fromArgs('name', "The node '$nodeName' is already exists");
@@ -170,37 +194,24 @@ class CfgApi extends Object
 
         $def['name'] = $nodeName;
 
-        $service['nodes'][$nodeName] = $def;
+        $node = NodeEntity::fromArray($def);
 
-        return $def;
+        return $service['nodes'][$nodeName] = $node;
     }
 
 
     public function updateNode(string $serviceName, string $nodeName, array $def)
     {
-        if (!$this->hasService($serviceName)) {
-            throw new InvalidParamException("The service '$serviceName' does not exists");
-        }
+        $node = $this->findNodeForUpdate($serviceName, $nodeName);
 
-        $service = &$this->findServiceForUpdate($serviceName);
-
-        if (!isset($service['nodes'][$nodeName])) {
-            throw new InvalidParamException("The node '$nodeName' does not exists");
-        }
-
-        $node = &$service['nodes'][$nodeName];
-        $node = array_merge($node, $def);
+        $node->merge($def);
 
         return $node;
     }
 
     public function deleteNode(string $serviceName, string $nodeName)
     {
-        if (!$this->hasService($serviceName)) {
-            throw new InvalidParamException("The service '$serviceName' does not exists");
-        }
-
-        $service = &$this->findServiceForUpdate($serviceName);
+        $service = $this->findServiceForUpdate($serviceName);
 
         unset($service['nodes'][$nodeName]);
     }
