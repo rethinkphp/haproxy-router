@@ -20,6 +20,9 @@ return [
         'class' => 'blink\auth\Auth',
         'model' => 'app\models\User',
     ],
+    'haproxy' => [
+        'class' => \rethink\hrouter\Haproxy::class,
+    ],
     'log' => [
         'class' => 'blink\log\Logger',
         'targets' => [
