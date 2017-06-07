@@ -103,7 +103,7 @@ class CfgApi extends Object
      * @param $name
      * @param $host
      * @param array $params
-     * @return array
+     * @return ServiceEntity
      * @throws ValidationException
      */
     public function createService($name, $host, $params = [])
@@ -115,9 +115,9 @@ class CfgApi extends Object
         $params['name'] = $name;
         $params['host'] = $host;
 
-        $this->_config['services'][] = $params;
+        $service = ServiceEntity::fromArray($params);
 
-        return $params;
+        return $this->_config['services'][] = $service;
     }
 
     public function updateService($name, array $params)

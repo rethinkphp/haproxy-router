@@ -74,6 +74,7 @@ class ServiceTest extends TestCase
                 'expectedBody' => [
                     'name' => 'foo2',
                     'host' => 'foo2.rethinkphp.com',
+                    'nodes' => [],
                 ],
             ],
 
@@ -93,6 +94,7 @@ class ServiceTest extends TestCase
                     [
                         'name' => 'foo2',
                         'host' => 'foo2.rethinkphp.com',
+                        'nodes' => [],
                     ]
                 ],
             ],
