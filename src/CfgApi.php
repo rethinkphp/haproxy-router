@@ -6,6 +6,7 @@ use blink\core\InvalidParamException;
 use blink\core\Object;
 use blink\support\Json;
 use rethink\hrouter\entities\NodeEntity;
+use rethink\hrouter\entities\RouteEntity;
 use rethink\hrouter\entities\ServiceEntity;
 use rethink\hrouter\support\ValidationException;
 
@@ -41,6 +42,11 @@ class CfgApi extends Object
                 $service['nodes'] = array_index($service['nodes'], 'name');
                 $service['nodes'] = array_map([NodeEntity::class, 'fromArray'], $service['nodes']);
             }
+
+            if (isset($service['routes'])) {
+                $service['routes'] = array_index($service['routes'], 'name');
+                $service['routes'] = array_map([RouteEntity::class, 'fromArray'], $service['routes']);
+            }
         }
 
         return $config;
@@ -53,6 +59,9 @@ class CfgApi extends Object
         foreach ($config['services'] as &$service) {
             if (isset($service['nodes'])) {
                 $service['nodes'] = array_values($service['nodes']);
+            }
+            if (isset($service['routes'])) {
+                $service['routes'] = array_values($service['routes']);
             }
         }
         return $config;
@@ -138,6 +147,81 @@ class CfgApi extends Object
         unset($this->_config['services'][$name]);
     }
 
+    public function findRoutes(string $serviceName)
+    {
+        if (!$this->hasService($serviceName)) {
+            throw new InvalidParamException("The service '$serviceName' does not exists");
+        }
+
+        $service = $this->findService($serviceName);
+
+        return array_values($service['routes'] ?? []);
+    }
+
+    public function findRoute(string $serviceName, string $routeName)
+    {
+        if (!($service = $this->findService($serviceName))) {
+            throw new InvalidParamException("The service '$serviceName' does not exists");
+        }
+
+        return $service['routes'][$routeName] ?? null;
+    }
+
+    /**
+     * @param string $serviceName
+     * @param string $routeName
+     * @return NodeEntity
+     */
+    public function findRouteForUpdate(string $serviceName, string $routeName)
+    {
+        $service = $this->findServiceForUpdate($serviceName);
+
+        if (!isset($service['routes'][$routeName])) {
+            throw new InvalidParamException("The route '$routeName' does not exists");
+        }
+
+        return $service['routes'][$routeName];
+    }
+
+    /**
+     * @param $serviceName
+     * @param $routeName
+     * @param array $def
+     * @return RouteEntity
+     * @throws ValidationException
+     */
+    public function addRoute(string $serviceName, string $routeName, array $def)
+    {
+        $service = $this->findServiceForUpdate($serviceName);
+
+        if (isset($service['routes'][$routeName])) {
+            throw ValidationException::fromArgs('name', "The route '$routeName' is already exists");
+        }
+
+        $def['name'] = $routeName;
+
+        $node = RouteEntity::fromArray($def);
+
+        return $service['routes'][$routeName] = $node;
+    }
+
+
+    public function updateRoute(string $serviceName, string $routeName, array $def)
+    {
+        $route = $this->findRouteForUpdate($serviceName, $routeName);
+
+        $route->merge($def);
+
+        return $route;
+    }
+
+    public function deleteRoute(string $serviceName, string $routeName)
+    {
+        $service = $this->findServiceForUpdate($serviceName);
+
+        unset($service['routes'][$routeName]);
+    }
+
     /**
      * @param string $serviceName
      * @return array
@@ -177,6 +261,7 @@ class CfgApi extends Object
 
         return $service['nodes'][$nodeName];
     }
+
     /**
      * @param $serviceName
      * @param $nodeName
