@@ -25,6 +25,7 @@ class CfgGenerator extends Object
      *      - host
      *      - rewrites
      *      - health check
+     *      - routes
      *      - nodes (aka. servers)
      *  + ...
      */

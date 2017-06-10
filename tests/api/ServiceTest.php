@@ -75,6 +75,7 @@ class ServiceTest extends TestCase
                     'name' => 'foo2',
                     'host' => 'foo2.rethinkphp.com',
                     'nodes' => [],
+                    'routes' => [],
                 ],
             ],
 
@@ -95,6 +96,7 @@ class ServiceTest extends TestCase
                         'name' => 'foo2',
                         'host' => 'foo2.rethinkphp.com',
                         'nodes' => [],
+                        'routes' => [],
                     ]
                 ],
             ],

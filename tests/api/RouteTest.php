@@ -5,11 +5,11 @@ namespace rethink\hrouter\tests\api;
 use rethink\hrouter\tests\TestCase;
 
 /**
- * Class NodeTest
+ * Class RouteTest
  *
  * @package rethink\hrouter\tests\api
  */
-class NodeTest extends TestCase
+class RouteTest extends TestCase
 {
     use ScenarioTrait;
 
