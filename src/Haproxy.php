@@ -5,7 +5,6 @@ namespace rethink\hrouter;
 
 use blink\core\Object;
 use blink\support\Json;
-use rethink\hrouter\CfgGenerator;
 
 /**
  * Class Haproxy
@@ -14,19 +13,22 @@ use rethink\hrouter\CfgGenerator;
  */
 class Haproxy extends Object
 {
-    public $pidFile = __DIR__ . '/../runtime/haproxy.pid';
     public $execFile = 'haproxy';
     public $configDir = __DIR__ . '/../runtime';
 
     public function init()
     {
-        $this->pidFile = normalize_path($this->pidFile);
         $this->configDir = normalize_path($this->configDir);
     }
 
     public function getConfigFile()
     {
         return $this->configDir . '/config.json';
+    }
+
+    public function getPidFile()
+    {
+        return $this->configDir . '/haproxy.pid';
     }
 
     /**
@@ -53,7 +55,9 @@ class Haproxy extends Object
      */
     public function reload($reconfigure = false)
     {
-        if (!file_exists($this->pidFile)) {
+        $pidFile = $this->getPidFile();
+
+        if (!file_exists($pidFile)) {
             return false;
         }
 
@@ -61,13 +65,13 @@ class Haproxy extends Object
             $this->configure();
         }
 
-        $pid = file_get_contents($this->pidFile);
+        $pid = file_get_contents($pidFile);
         $pid = str_replace("\n", ' ', $pid);
 
         $command = sprintf(
             '%s -D -p %s -f %s -sf %s 2>&1',
             $this->execFile,
-            $this->pidFile,
+            $pidFile,
             $this->configDir . '/haproxy.cfg',
             $pid
         );
@@ -101,7 +105,9 @@ class Haproxy extends Object
      */
     public function start(&$output = null)
     {
-        if (file_exists($this->pidFile)) {
+        $pidFile = $this->getPidFile();
+
+        if (file_exists($pidFile)) {
             return false;
         }
 
@@ -110,7 +116,7 @@ class Haproxy extends Object
         $command = sprintf(
             '%s -D -p %s -f %s 2>&1',
             $this->execFile,
-            $this->pidFile,
+            $pidFile,
             $this->configDir . '/haproxy.cfg'
         );
 
@@ -126,8 +132,10 @@ class Haproxy extends Object
      */
     public function stop()
     {
-        if (file_exists($this->pidFile) && posix_kill((int)file_get_contents($this->pidFile), 15)) {
-            unlink($this->pidFile);
+        $pidFile = $this->getPidFile();
+
+        if (file_exists($pidFile) && posix_kill((int)file_get_contents($pidFile), 15)) {
+            unlink($pidFile);
             return true;
         }
 

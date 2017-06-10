@@ -3,15 +3,14 @@
 namespace rethink\hrouter\tests\services;
 
 use blink\support\Json;
-use PHPUnit_Framework_TestCase;
-use rethink\hrouter\Haproxy;
+use rethink\hrouter\tests\TestCase;
 
 /**
  * Class HaproxyTest
  *
  * @package rethink\hrouter\tests\services
  */
-class HaproxyTest extends PHPUnit_Framework_TestCase
+class HaproxyTest extends TestCase
 {
     public function testHaproxyManagement()
     {
@@ -20,7 +19,7 @@ class HaproxyTest extends PHPUnit_Framework_TestCase
             'httpsPort' => 4443,
         ];
 
-        $haproxy = new Haproxy();
+        $haproxy = haproxy();
 
         $configFile = $haproxy->getConfigFile();
 

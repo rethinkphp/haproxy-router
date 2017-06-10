@@ -9,7 +9,24 @@ class TestCase extends BaseTestCase
 
     public function createApplication()
     {
-        return require __DIR__ . '/../src/bootstrap.php';
+        $app = require __DIR__ . '/../src/bootstrap.php';
+
+        $runtimeDir = $app->runtime . '/tests';
+
+        if (!file_exists($runtimeDir)) {
+            mkdir($runtimeDir);
+        }
+
+        $app->services = array_merge_recursive(
+            require __DIR__ . '/../src/config/services.php',
+            [
+                'haproxy' => [
+                    'configDir' => $runtimeDir,
+                ],
+            ]
+        );
+
+        return $app;
     }
 
 }
