@@ -134,11 +134,18 @@ class Haproxy extends Object
     {
         $pidFile = $this->getPidFile();
 
-        if (file_exists($pidFile) && posix_kill((int)file_get_contents($pidFile), 15)) {
-            unlink($pidFile);
-            return true;
+        if (!file_exists($pidFile)) {
+            return false;
         }
 
-        return false;
+        $pids = explode("\n", trim(file_get_contents($pidFile)));
+
+        foreach ($pids as $pid) {
+            posix_kill($pid, 15);
+        }
+
+        unlink($pidFile);
+
+        return true;
     }
 }
