@@ -5,6 +5,7 @@ namespace rethink\hrouter;
 use blink\core\Object;
 
 use function normalize_path;
+use rethink\hrouter\entities\RouteEntity;
 
 /**
  * Class CfgGenerator
@@ -68,6 +69,35 @@ class CfgGenerator extends Object
     }
 
     /**
+     * @param array $routeMaps
+     * @return string
+     */
+    public function generateRoutes(array $routeMaps)
+    {
+        $lines = [];
+
+        foreach ($routeMaps as $service => $routes) {
+            /** @var RouteEntity $route */
+            foreach ($routes as $route) {
+                $lines[] = "^{$route->host}{$route->path} service_$service";
+            }
+        }
+
+        return implode("\n", $lines);
+    }
+
+    protected function extractRoutes()
+    {
+        $routeMaps = [];
+
+        foreach ($this->services as $service) {
+            $routeMaps[$service['name']] = $service['routes'] ?? [];
+        }
+
+        return $routeMaps;
+    }
+
+    /**
      * @return array
      */
     public function generate()
@@ -80,7 +110,7 @@ class CfgGenerator extends Object
 
         return [
             'haproxy.cfg' => $conf,
-            'routes.map' => '',
+            'routes.map' => $this->generateRoutes($this->extractRoutes()),
             'https-hosts.map' => '',
         ];
     }
