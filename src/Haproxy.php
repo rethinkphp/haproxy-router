@@ -62,6 +62,7 @@ class Haproxy extends Object
         }
 
         $pid = file_get_contents($this->pidFile);
+        $pid = str_replace("\n", ' ', $pid);
 
         $command = sprintf(
             '%s -D -p %s -f %s -sf %s 2>&1',
