@@ -17,7 +17,7 @@ class RouteTest extends TestCase
     {
         parent::setUp();
 
-        @unlink(app()->runtime . '/config.json');
+        @unlink(haproxy()->getConfigFile());
     }
 
     public function scenarios()

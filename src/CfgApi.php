@@ -21,7 +21,7 @@ class CfgApi extends Object
 
     public function loadFile()
     {
-        $configFile = app()->runtime . '/config.json';
+        $configFile = haproxy()->getConfigFile();
 
         if (!file_exists($configFile)) {
             return;
@@ -52,8 +52,10 @@ class CfgApi extends Object
         return $config;
     }
 
-    protected function normalizeConfig($config)
+    public function normalizedConfig()
     {
+        $config = $this->_config;
+
         $config['services'] = array_values($config['services'] ?? []);
 
         foreach ($config['services'] as &$service) {
@@ -303,8 +305,8 @@ class CfgApi extends Object
 
     public function persist()
     {
-        $config = $this->normalizeConfig($this->_config);
+        $config = $this->normalizedConfig();
 
-        file_put_contents(app()->runtime . '/config.json', Json::encode($config));
+        file_put_contents(haproxy()->getConfigFile(), Json::encode($config));
     }
 }

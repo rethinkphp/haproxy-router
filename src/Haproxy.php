@@ -32,19 +32,20 @@ class Haproxy extends Object
     }
 
     /**
-     * @return array
+     * @return CfgApi
      */
     public function loadConfig()
     {
         $configFile = $this->getConfigFile();
 
         if (!file_exists($configFile)) {
-            return [];
+            return new CfgApi();
         }
 
-        $contents = file_get_contents($configFile);
+        $api = new CfgApi();
+        $api->loadFile();
 
-        return Json::decode($contents);
+        return $api;
     }
 
     /**
@@ -83,7 +84,9 @@ class Haproxy extends Object
 
     protected function configure()
     {
-        $config = $this->loadConfig();
+        $cfgApi = $this->loadConfig();
+
+        $config = $cfgApi->normalizedConfig();
         $config['configDir'] = $this->configDir;
 
         $gen = new CfgGenerator($config);
