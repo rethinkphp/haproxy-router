@@ -10,24 +10,16 @@ use rethink\hrouter\CfgApi;
  */
 class ServiceController extends BaseController
 {
-    protected function getApi()
-    {
-        $api = new CfgApi();
-        $api->loadFile();
-
-        return $api;
-    }
-
     public function index()
     {
-        $api = $this->getApi();
+        $api = haproxy()->getCfgApi();
 
         return $api->findServices();
     }
 
     public function create(Request $request)
     {
-        $api = $this->getApi();
+        $api = haproxy()->getCfgApi();
 
         $body = $request->getBody();
 
@@ -46,7 +38,7 @@ class ServiceController extends BaseController
 
     public function update($name, Request $request)
     {
-        $api = $this->getApi();
+        $api = haproxy()->getCfgApi();
 
         $service = $api->updateService($name, $request->body->all());
 
@@ -59,14 +51,14 @@ class ServiceController extends BaseController
 
     public function view($name)
     {
-        $api = $this->getApi();
+        $api = haproxy()->getCfgApi();
 
         return $api->findService($name);
     }
 
     public function delete($name)
     {
-        $api = $this->getApi();
+        $api = haproxy()->getCfgApi();
 
         $api->deleteService($name);
 

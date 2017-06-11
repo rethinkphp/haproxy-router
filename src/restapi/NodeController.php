@@ -10,24 +10,17 @@ use rethink\hrouter\CfgApi;
  */
 class NodeController extends BaseController
 {
-    protected function getApi()
-    {
-        $api = new CfgApi();
-        $api->loadFile();
-
-        return $api;
-    }
 
     public function index($serviceId)
     {
-        $api = $this->getApi();
+        $api = haproxy()->getCfgApi();
 
         return $api->findNodes($serviceId);
     }
 
     public function create($serviceId, Request $request)
     {
-        $api = $this->getApi();
+        $api = haproxy()->getCfgApi();
 
         $node = $api->addNode(
             $serviceId,
@@ -44,14 +37,14 @@ class NodeController extends BaseController
 
     public function view($serviceId, $nodeId)
     {
-        $api = $this->getApi();
+        $api = haproxy()->getCfgApi();
 
         return $api->findNode($serviceId, $nodeId);
     }
 
     public function update($serviceId, $nodeId, Request $request)
     {
-        $api = $this->getApi();
+        $api = haproxy()->getCfgApi();
 
         $node = $api->updateNode($serviceId, $nodeId, $request->body->all());
 
@@ -64,7 +57,7 @@ class NodeController extends BaseController
 
     public function delete($serviceId, $nodeId)
     {
-        $api = $this->getApi();
+        $api = haproxy()->getCfgApi();
 
         $api->deleteNode($serviceId, $nodeId);
 

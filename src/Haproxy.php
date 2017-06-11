@@ -4,10 +4,11 @@ namespace rethink\hrouter;
 
 
 use blink\core\Object;
-use blink\support\Json;
 
 /**
  * Class Haproxy
+ *
+ * @property CfgApi $cfgApi
  *
  * @package rethink\hrouter\services
  */
@@ -34,18 +35,11 @@ class Haproxy extends Object
     /**
      * @return CfgApi
      */
-    public function loadConfig()
+    public function getCfgApi()
     {
-        $configFile = $this->getConfigFile();
-
-        if (!file_exists($configFile)) {
-            return new CfgApi();
-        }
-
-        $api = new CfgApi();
-        $api->loadFile();
-
-        return $api;
+        return new CfgApi([
+            'configFile' => $this->getConfigFile(),
+        ]);
     }
 
     /**
@@ -84,7 +78,7 @@ class Haproxy extends Object
 
     protected function configure()
     {
-        $cfgApi = $this->loadConfig();
+        $cfgApi = $this->getCfgApi();
 
         $config = $cfgApi->normalizedConfig();
         $config['configDir'] = $this->configDir;

@@ -12,24 +12,16 @@ use blink\http\Request;
  */
 class RouteController extends BaseController
 {
-    protected function getApi()
-    {
-        $api = new CfgApi();
-        $api->loadFile();
-
-        return $api;
-    }
-
     public function index($serviceId)
     {
-        $api = $this->getApi();
+        $api = haproxy()->getCfgApi();
 
         return $api->findRoutes($serviceId);
     }
 
     public function create($serviceId, Request $request)
     {
-        $api = $this->getApi();
+        $api = haproxy()->getCfgApi();
 
         $node = $api->addRoute(
             $serviceId,
@@ -46,14 +38,14 @@ class RouteController extends BaseController
 
     public function view($serviceId, $routeId)
     {
-        $api = $this->getApi();
+        $api = haproxy()->getCfgApi();
 
         return $api->findRoute($serviceId, $routeId);
     }
 
     public function update($serviceId, $routeId, Request $request)
     {
-        $api = $this->getApi();
+        $api = haproxy()->getCfgApi();
 
         $node = $api->updateRoute($serviceId, $routeId, $request->body->all());
 
@@ -66,7 +58,7 @@ class RouteController extends BaseController
 
     public function delete($serviceId, $routeId)
     {
-        $api = $this->getApi();
+        $api = haproxy()->getCfgApi();
 
         $api->deleteRoute($serviceId, $routeId);
 

@@ -17,17 +17,17 @@ use rethink\hrouter\support\ValidationException;
  */
 class CfgApi extends Object
 {
+    public $configFile;
+
     private $_config = [];
 
-    public function loadFile()
+    public function init()
     {
-        $configFile = haproxy()->getConfigFile();
-
-        if (!file_exists($configFile)) {
+        if (!file_exists($this->configFile)) {
             return;
         }
 
-        $contents = file_get_contents($configFile);
+        $contents = file_get_contents($this->configFile);
 
         $this->_config = $this->indexConfig(Json::decode($contents));
     }
