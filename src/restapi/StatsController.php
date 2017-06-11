@@ -19,6 +19,8 @@ class StatsController extends BaseController
             haproxy()->start();
         } else if ($status == 'stopped') {
             haproxy()->stop();
+        } else if ($status == 'reload') {
+            haproxy()->reload();
         }
 
         return $this->noContent();
