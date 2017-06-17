@@ -15,18 +15,18 @@ class NodeController extends BaseController
     {
         $api = haproxy()->getCfgApi();
 
-        return $api->findNodes($serviceId);
+        $service = $api->findServiceOrFail($serviceId);
+
+        return $api->findNodes($service);
     }
 
     public function create($serviceId, Request $request)
     {
         $api = haproxy()->getCfgApi();
 
-        $node = $api->addNode(
-            $serviceId,
-            $request->body->get('name'),
-            $request->body->except('name')
-        );
+        $service = $api->findServiceOrFail($serviceId);
+
+        $node = $api->addNode($service, $request->body->all());
 
         $api->persist();
 
@@ -46,7 +46,10 @@ class NodeController extends BaseController
     {
         $api = haproxy()->getCfgApi();
 
-        $node = $api->updateNode($serviceId, $nodeId, $request->body->all());
+        $service = $api->findServiceOrFail($serviceId);
+        $node = $api->findNodeOrFail($service, $nodeId);
+
+        $node = $api->updateNode($node, $request->body->all());
 
         $api->persist();
 
@@ -59,7 +62,10 @@ class NodeController extends BaseController
     {
         $api = haproxy()->getCfgApi();
 
-        $api->deleteNode($serviceId, $nodeId);
+        $service = $api->findServiceOrFail($serviceId);
+        $node = $api->findNodeOrFail($service, $nodeId);
+
+        $api->deleteNode($node);
 
         $api->persist();
 

@@ -20,17 +20,9 @@ class CfgGenerator extends Object
     public $httpsPort = 443;
 
     /**
-     * @param array $config
-     *  + services
-     *      - name
-     *      - host
-     *      - rewrites
-     *      - health check
-     *      - routes
-     *      - nodes (aka. servers)
-     *  + ...
+     * @var CfgApi
      */
-    public $services = [];
+    public $cfgApi;
 
     public function routeMap()
     {
@@ -90,8 +82,10 @@ class CfgGenerator extends Object
     {
         $routeMaps = [];
 
-        foreach ($this->services as $service) {
-            $routeMaps[$service['name']] = $service['routes'] ?? [];
+        $services = $this->cfgApi->findServices();
+
+        foreach ($services as $service) {
+            $routeMaps[$service->name] = $this->cfgApi->findRoutes($service);
         }
 
         return $routeMaps;

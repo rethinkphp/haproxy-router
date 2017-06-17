@@ -16,18 +16,18 @@ class RouteController extends BaseController
     {
         $api = haproxy()->getCfgApi();
 
-        return $api->findRoutes($serviceId);
+        $service = $api->findServiceOrFail($serviceId);
+
+        return $api->findRoutes($service);
     }
 
     public function create($serviceId, Request $request)
     {
         $api = haproxy()->getCfgApi();
 
-        $node = $api->addRoute(
-            $serviceId,
-            $request->body->get('name'),
-            $request->body->except('name')
-        );
+        $service = $api->findServiceOrFail($serviceId);
+
+        $node = $api->addRoute($service, $request->body->all());
 
         $api->persist();
 
@@ -40,14 +40,20 @@ class RouteController extends BaseController
     {
         $api = haproxy()->getCfgApi();
 
-        return $api->findRoute($serviceId, $routeId);
+        $service = $api->findServiceOrFail($serviceId);
+
+        return $api->findRoute($service, $routeId);
     }
 
     public function update($serviceId, $routeId, Request $request)
     {
         $api = haproxy()->getCfgApi();
 
-        $node = $api->updateRoute($serviceId, $routeId, $request->body->all());
+        $service = $api->findServiceOrFail($serviceId);
+
+        $route = $api->findRouteOrFail($service, $routeId);
+
+        $node = $api->updateRoute($route, $request->body->all());
 
         $api->persist();
 
@@ -60,7 +66,11 @@ class RouteController extends BaseController
     {
         $api = haproxy()->getCfgApi();
 
-        $api->deleteRoute($serviceId, $routeId);
+        $service = $api->findServiceOrFail($serviceId);
+
+        $route = $api->findRouteOrFail($service, $routeId);
+
+        $api->deleteRoute($route);
 
         $api->persist();
 

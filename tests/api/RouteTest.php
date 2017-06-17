@@ -100,10 +100,8 @@ class RouteTest extends TestCase
                 'path' => '/services/rethink/routes',
                 'expectedStatus' => 200,
                 'expectedBody' => [
-                    [
-                        'name' => 'route1',
-                        'host' => '127.0.0.2:80',
-                    ]
+                    'name' => 'route1',
+                    'host' => '127.0.0.2:80',
                 ],
             ]
         ];

@@ -23,11 +23,7 @@ class ServiceController extends BaseController
 
         $body = $request->getBody();
 
-        $service = $api->createService(
-            $body->get('name'),
-            $body->get('host'),
-            $body->except('name', 'host')
-        );
+        $service = $api->createService($body->all());
 
         $api->persist();
 
@@ -40,7 +36,13 @@ class ServiceController extends BaseController
     {
         $api = haproxy()->getCfgApi();
 
-        $service = $api->updateService($name, $request->body->all());
+        $service = $api->findService($name);
+
+        if (!$service) {
+            return $this->notFound();
+        }
+
+        $service = $api->updateService($service, $request->body->all());
 
         $api->persist();
 
@@ -60,7 +62,13 @@ class ServiceController extends BaseController
     {
         $api = haproxy()->getCfgApi();
 
-        $api->deleteService($name);
+        $service = $api->findService($name);
+
+        if (!$service) {
+            return $this->notFound();
+        }
+
+        $api->deleteService($service);
 
         $api->persist();
 

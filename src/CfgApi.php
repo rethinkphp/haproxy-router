@@ -2,9 +2,11 @@
 
 namespace rethink\hrouter;
 
+use blink\core\HttpException;
 use blink\core\InvalidParamException;
 use blink\core\Object;
 use blink\support\Json;
+use rethink\hrouter\entities\BaseEntity;
 use rethink\hrouter\entities\NodeEntity;
 use rethink\hrouter\entities\RouteEntity;
 use rethink\hrouter\entities\ServiceEntity;
@@ -19,7 +21,7 @@ class CfgApi extends Object
 {
     public $configFile;
 
-    private $_config = [];
+    protected $_store = [];
 
     public function init()
     {
@@ -29,44 +31,86 @@ class CfgApi extends Object
 
         $contents = file_get_contents($this->configFile);
 
-        $this->_config = $this->indexConfig(Json::decode($contents));
+        $this->_store = $this->indexStore(Json::decode($contents));
     }
 
-    protected function indexConfig($config)
+    protected function indexStore($data)
     {
-        $config['services'] = array_index($config['services'] ?? [], 'name');
-        $config['services'] = array_map([ServiceEntity::class, 'fromArray'], $config['services']);
+        $map = [
+            'services' => ServiceEntity::class,
+            'nodes' => NodeEntity::class,
+            'routes' => RouteEntity::class,
+        ];
 
-        foreach ($config['services'] as &$service) {
-            if (isset($service['nodes'])) {
-                $service['nodes'] = array_index($service['nodes'], 'name');
-                $service['nodes'] = array_map([NodeEntity::class, 'fromArray'], $service['nodes']);
-            }
-
-            if (isset($service['routes'])) {
-                $service['routes'] = array_index($service['routes'], 'name');
-                $service['routes'] = array_map([RouteEntity::class, 'fromArray'], $service['routes']);
+        foreach ($data as $storeName => $rows) {
+            if (isset($map[$storeName])) {
+                $data[$storeName] = array_map([$map[$storeName], 'fromArray'], $rows);
             }
         }
 
-        return $config;
+        return $data;
     }
 
-    public function normalizedConfig()
+
+    protected function findAll($storeName, array $conditions = [])
     {
-        $config = $this->_config;
+        $rows = $this->_store[$storeName] ?? [];
 
-        $config['services'] = array_values($config['services'] ?? []);
+        if ($conditions === []) {
+            return $rows;
+        }
 
-        foreach ($config['services'] as &$service) {
-            if (isset($service['nodes'])) {
-                $service['nodes'] = array_values($service['nodes']);
+        return $this->filterConditions($rows, $conditions);
+    }
+
+    protected function filterConditions(array $rows, array $conditions)
+    {
+        $filtered = [];
+
+        foreach ($rows as $row) {
+            $matches = true;
+
+            foreach ($conditions as $key => $value) {
+                if (!isset($row[$key]) || !in_array($row[$key], (array)$value)) {
+                    $matches = false;
+                    break;
+                }
             }
-            if (isset($service['routes'])) {
-                $service['routes'] = array_values($service['routes']);
+
+            if ($matches) {
+                $filtered[] = $row;
             }
         }
-        return $config;
+
+        return $filtered;
+    }
+
+    public function addEntity($storeName, BaseEntity $entity)
+    {
+        $this->_store[$storeName][] = $entity;
+    }
+
+    public function removeEntity($storeName, BaseEntity $entity)
+    {
+        if (!isset($this->_store[$storeName])) {
+            return 0;
+        }
+
+        $removed = 0;
+        $rows = $this->_store[$storeName];
+
+        foreach ($rows as $key => $row) {
+            if ($entity === $row) {
+                unset($rows[$key]);
+                $removed ++;
+            }
+        }
+
+        if ($removed) {
+            $this->_store[$storeName] = array_values($rows);
+        }
+
+        return $removed;
     }
 
     /**
@@ -74,7 +118,7 @@ class CfgApi extends Object
      */
     public function findServices()
     {
-        return array_values($this->_config['services']  ?? []);
+        return $this->findAll('services');
     }
 
     /**
@@ -83,7 +127,9 @@ class CfgApi extends Object
      */
     public function hasService($name)
     {
-        return isset($this->_config['services'][$name]);
+        $services = $this->findAll('services', ['name' => $name]);
+
+        return count($services) > 0;
     }
 
     /**
@@ -92,221 +138,198 @@ class CfgApi extends Object
      */
     public function findService($name)
     {
-        return $this->_config['services'][$name] ?? null;
+        $services = $this->findAll('services', ['name' => $name]);
+
+        return $services[0] ?? null;
     }
 
-    /**
-     * @param $name
-     * @return ServiceEntity
-     */
-    public function findServiceForUpdate($name)
+    public function findServiceOrFail($name)
     {
-        if (!$this->hasService($name)) {
-            throw new InvalidParamException("The service '$name' does not exists");
+        $service = $this->findService($name);
+
+        if (!$service) {
+            // TODO we should not throw http exception here
+            return new HttpException(404);
         }
 
-        return $this->_config['services'][$name];
+        return $service;
     }
 
     /**
      * Create a new service.
      *
-     * @param $name
-     * @param $host
      * @param array $params
      * @return ServiceEntity
      * @throws ValidationException
      */
-    public function createService($name, $host, $params = [])
+    public function createService($params = [])
     {
+        $name = $params['name'];
+
         if ($this->findService($name)) {
             throw ValidationException::fromArgs('name', "The service '$name' is already exists");
         }
 
-        $params['name'] = $name;
-        $params['host'] = $host;
+        $params['id'] = uniqid();
 
         $service = ServiceEntity::fromArray($params);
 
-        return $this->_config['services'][] = $service;
+        $this->addEntity('services', $service);
+
+        return $service;
     }
 
-    public function updateService($name, array $params)
+    public function updateService(ServiceEntity $service, array $params)
     {
-        $service = $this->findServiceForUpdate($name);
-
-        if (!$service) {
-            throw new InvalidParamException("The service '$name' does not exists");
-        }
-
         $service->merge($params);
 
         return $service;
     }
 
-    public function deleteService($name)
+    public function deleteService(ServiceEntity $service)
     {
-        unset($this->_config['services'][$name]);
+        return $this->removeEntity('services', $service);
     }
 
-    public function findRoutes(string $serviceName)
+    public function findAllRoutes()
     {
-        if (!$this->hasService($serviceName)) {
-            throw new InvalidParamException("The service '$serviceName' does not exists");
-        }
-
-        $service = $this->findService($serviceName);
-
-        return array_values($service['routes'] ?? []);
+        return $this->findAll('routes');
     }
 
-    public function findRoute(string $serviceName, string $routeName)
+    public function findRoutes(ServiceEntity $service)
     {
-        if (!($service = $this->findService($serviceName))) {
-            throw new InvalidParamException("The service '$serviceName' does not exists");
+        return $this->findAll('routes', ['service_id' => $service->id]);
+    }
+
+    public function findRoute(ServiceEntity $service, string $routeName)
+    {
+        $routes = $this->findAll('routes', ['service_id' => $service->id, 'name' => $routeName]);
+
+        return $routes[0] ?? null;
+    }
+
+    public function findRouteOrFail(ServiceEntity $service, $name)
+    {
+        $route = $this->findRoute($service, $name);
+
+        if (!$route) {
+            // TODO we should not throw http exception here
+            return new HttpException(404);
         }
 
-        return $service['routes'][$routeName] ?? null;
+        return $route;
     }
 
     /**
-     * @param string $serviceName
-     * @param string $routeName
-     * @return NodeEntity
-     */
-    public function findRouteForUpdate(string $serviceName, string $routeName)
-    {
-        $service = $this->findServiceForUpdate($serviceName);
-
-        if (!isset($service['routes'][$routeName])) {
-            throw new InvalidParamException("The route '$routeName' does not exists");
-        }
-
-        return $service['routes'][$routeName];
-    }
-
-    /**
-     * @param $serviceName
-     * @param $routeName
-     * @param array $def
+     * @param $service
+     * @param array $routeDef
      * @return RouteEntity
      * @throws ValidationException
      */
-    public function addRoute(string $serviceName, string $routeName, array $def)
+    public function addRoute(ServiceEntity $service, $routeDef)
     {
-        $service = $this->findServiceForUpdate($serviceName);
+        $routeDef['id'] = uniqid();
+        $routeDef['service_id'] = $service->id;
 
-        if (isset($service['routes'][$routeName])) {
-            throw ValidationException::fromArgs('name', "The route '$routeName' is already exists");
+        if ($this->findRoute($service, $routeDef['name'])) {
+            throw ValidationException::fromArgs('name', "The route '{$routeDef['name']}' is already exists");
         }
 
-        $def['name'] = $routeName;
+        $route = RouteEntity::fromArray($routeDef);
 
-        $node = RouteEntity::fromArray($def);
+        $this->addEntity('routes', $route);
 
-        return $service['routes'][$routeName] = $node;
+        return $route;
     }
 
-
-    public function updateRoute(string $serviceName, string $routeName, array $def)
+    public function updateRoute(RouteEntity $route, array $def)
     {
-        $route = $this->findRouteForUpdate($serviceName, $routeName);
-
         $route->merge($def);
 
         return $route;
     }
 
-    public function deleteRoute(string $serviceName, string $routeName)
+    public function deleteRoute(RouteEntity $route)
     {
-        $service = $this->findServiceForUpdate($serviceName);
-
-        unset($service['routes'][$routeName]);
+        return $this->removeEntity('routes', $route);
     }
 
     /**
-     * @param string $serviceName
+     * @param $service
      * @return array
      */
-    public function findNodes(string $serviceName)
+    public function findNodes(ServiceEntity $service)
     {
-        if (!$this->hasService($serviceName)) {
-            throw new InvalidParamException("The service '$serviceName' does not exists");
-        }
-
-        $service = $this->findService($serviceName);
-
-        return array_values($service['nodes'] ?? []);
+        return $this->findAll('nodes', ['service_id' => $service->id]);
     }
 
-    public function findNode(string $serviceName, string $nodeName)
+    public function findNode(ServiceEntity $service, string $nodeName)
     {
-        if (!($service = $this->findService($serviceName))) {
-            throw new InvalidParamException("The service '$serviceName' does not exists");
-        }
+        $nodes = $this->findAll('nodes', ['service_id' => $service->id, 'name' => $nodeName]);
 
-        return $service['nodes'][$nodeName] ?? null;
+        return $nodes[0] ?? null;
     }
 
-    /**
-     * @param string $serviceName
-     * @param string $nodeName
-     * @return NodeEntity
-     */
-    public function findNodeForUpdate(string $serviceName, string $nodeName)
+    public function findNodeOrFail(ServiceEntity $service, $name)
     {
-        $service = $this->findServiceForUpdate($serviceName);
+        $node = $this->findNode($service, $name);
 
-        if (!isset($service['nodes'][$nodeName])) {
-            throw new InvalidParamException("The node '$nodeName' does not exists");
+        if (!$node) {
+            // TODO we should not throw http exception here
+            return new HttpException(404);
         }
 
-        return $service['nodes'][$nodeName];
+        return $node;
     }
 
     /**
-     * @param $serviceName
-     * @param $nodeName
+     * @param $service
      * @param array $def
      * @return NodeEntity
      * @throws ValidationException
      */
-    public function addNode(string $serviceName, string $nodeName, array $def)
+    public function addNode(ServiceEntity $service, array $def)
     {
-        $service = $this->findServiceForUpdate($serviceName);
+        $def['id'] = uniqid();
+        $def['service_id'] = $service->id;
 
-        if (isset($service['nodes'][$nodeName])) {
-            throw ValidationException::fromArgs('name', "The node '$nodeName' is already exists");
+        if ($this->findNode($service, $def['name'])) {
+            throw ValidationException::fromArgs('name', "The node '{$def['name']}' is already exists");
         }
-
-        $def['name'] = $nodeName;
 
         $node = NodeEntity::fromArray($def);
 
-        return $service['nodes'][$nodeName] = $node;
+        $this->addEntity('nodes', $node);
+
+        return $node;
     }
 
-
-    public function updateNode(string $serviceName, string $nodeName, array $def)
+    public function updateNode(NodeEntity $node, array $def)
     {
-        $node = $this->findNodeForUpdate($serviceName, $nodeName);
-
         $node->merge($def);
 
         return $node;
     }
 
-    public function deleteNode(string $serviceName, string $nodeName)
+    public function deleteNode(NodeEntity $node)
     {
-        $service = $this->findServiceForUpdate($serviceName);
+        return $this->removeEntity('nodes', $node);
+    }
 
-        unset($service['nodes'][$nodeName]);
+    public function options()
+    {
+        return $this->_store['options'] ?? [];
+    }
+
+    public function option($name)
+    {
+        $options = $this->_store['options'] ?? [];
+
+        return $options[$name] ?? null;
     }
 
     public function persist()
     {
-        $config = $this->normalizedConfig();
-
-        file_put_contents(haproxy()->getConfigFile(), Json::encode($config));
+        file_put_contents(haproxy()->getConfigFile(), Json::encode($this->_store));
     }
 }

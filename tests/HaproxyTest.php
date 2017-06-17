@@ -15,8 +15,10 @@ class HaproxyTest extends TestCase
     public function testHaproxyManagement()
     {
         $config = [
-            'httpPort' => 8880,
-            'httpsPort' => 4443,
+            'options' => [
+                'httpPort' => 8880,
+                'httpsPort' => 4443,
+            ]
         ];
 
         $haproxy = haproxy();

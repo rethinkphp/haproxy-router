@@ -100,10 +100,8 @@ class NodeTest extends TestCase
                 'path' => '/services/rethink/nodes',
                 'expectedStatus' => 200,
                 'expectedBody' => [
-                    [
-                        'name' => 'node1',
-                        'host' => '127.0.0.2:80',
-                    ]
+                    'name' => 'node1',
+                    'host' => '127.0.0.2:80',
                 ],
             ]
         ];

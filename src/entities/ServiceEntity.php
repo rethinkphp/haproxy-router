@@ -12,11 +12,5 @@ namespace rethink\hrouter\entities;
  */
 class ServiceEntity extends BaseEntity
 {
-    public function defaults()
-    {
-        return [
-            'nodes' => [],
-            'routes' => [],
-        ];
-    }
+
 }

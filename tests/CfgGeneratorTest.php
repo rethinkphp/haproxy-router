@@ -2,16 +2,17 @@
 
 namespace rethink\hrouter\tests\services;
 
-use PHPUnit_Framework_TestCase;
+use rethink\hrouter\CfgApi;
 use rethink\hrouter\CfgGenerator;
 use rethink\hrouter\entities\RouteEntity;
+use rethink\hrouter\tests\TestCase;
 
 /**
  * Class CfgGeneratorTest
  *
  * @package rethink\hrouter\tests\services
  */
-class CfgGeneratorTest extends PHPUnit_Framework_TestCase
+class CfgGeneratorTest extends TestCase
 {
     public function routeProvider()
     {
@@ -59,28 +60,28 @@ ROUTES
 
     public function testGenerate()
     {
-        $config = [
-            'services' => [
-                 [
-                     'name' => 'rethinkphp',
-                     'host' => 'rethinkphp.com',
-                     'fullconn' => 100,
-                     'nodes' => [
-                         [
-                             'name' => 'node_1',
-                             'host' => '172.16.205.46:7788',
-                             'check' => true,
-                             'backup' => true,
-                         ]
-                     ],
-                     'rewrites' => [
-                         '/api/v1/(foo|bar)(.*)' => '/oapi/v1/\2\3',
-                     ],
-                ],
-            ],
-        ];
+        $cfgApi = new CfgApi();
 
-        $generator = new CfgGenerator($config);
+        $service = $cfgApi->createService([
+            'name' => 'rethinkphp',
+            'host' => 'rethinkphp.com',
+            'fullconn' => 100,
+            'rewrites' => [
+                '/api/v1/(foo|bar)(.*)' => '/oapi/v1/\2\3',
+            ],
+        ]);
+
+        $cfgApi->addNode($service, [
+            'name' => 'node_1',
+            'host' => '172.16.205.46:7788',
+            'check' => true,
+            'backup' => true,
+        ]);
+
+        $generator = new CfgGenerator([
+            'cfgApi' => $cfgApi,
+            'configDir' => app()->runtime . '/tests',
+        ]);
 
         $conf = $generator->generate();
 

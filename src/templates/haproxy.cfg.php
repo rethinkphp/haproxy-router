@@ -58,7 +58,7 @@ listen stats
 
 
 frontend http-in
-    bind *:<?= $this->httpPort . PHP_EOL ?>
+    bind *:<?= $this->cfgApi->option('httpPort') . PHP_EOL ?>
     mode http
 
     timeout http-keep-alive 1000
@@ -71,18 +71,18 @@ frontend http-in
 
 
 frontend https-in
-    bind *:<?= $this->httpsPort . PHP_EOL ?>
+    bind *:<?= $this->cfgApi->option('httpsPort') . PHP_EOL ?>
     mode http
 
     use_backend %[base,map_reg(<?=$this->routeMap()?>)] if {  base,map_reg(<?=$this->routeMap()?>) -m found }
 
 
-<?php foreach ($this->services as $def):?>
+<?php foreach ($this->cfgApi->findServices() as $service):?>
 
-backend service_<?= $def['name'] ?>
+backend service_<?= $service['name'] ?>
 
     mode http
-    fullconn <?= ($def['fullconn'] ?? 9999) . PHP_EOL?>
+    fullconn <?= ($service['fullconn'] ?? 9999) . PHP_EOL?>
     option forwardfor
     option forceclose
     #option httpclose
@@ -90,17 +90,17 @@ backend service_<?= $def['name'] ?>
     http-request set-header X-Forwarded-Port %[dst_port]
     http-request add-header X-Forwarded-Proto https if { ssl_fc }
 
-<?php foreach ($def['rewrites'] ?? [] as $from => $to):?>
+<?php foreach ($service['rewrites'] ?? [] as $from => $to):?>
     reqrep ^([^\ :]*)\ <?= $from ?>     \1\ <?= $to ?>
 
 <?php endforeach ?>
 
     option httpchk GET /
 
-<?php foreach ($def['nodes'] as $index => $def):?>
-    <?= $this->generateServer($def) ?>
-
+<?php foreach ($this->cfgApi->findNodes($service) as $index => $service):?>
+    <?= $this->generateServer($service) . PHP_EOL?>
 <?php endforeach ?>
+
     compression algo gzip
     compression type text/css text/html text/javascript application/javascript text/plain text/xml application/json
 

@@ -80,8 +80,8 @@ class Haproxy extends Object
     {
         $cfgApi = $this->getCfgApi();
 
-        $config = $cfgApi->normalizedConfig();
         $config['configDir'] = $this->configDir;
+        $config['cfgApi'] = $cfgApi;
 
         $gen = new CfgGenerator($config);
 

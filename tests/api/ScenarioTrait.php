@@ -25,7 +25,7 @@ trait ScenarioTrait
         $actor->seeStatusCode($scenario['expectedStatus']);
 
         if (isset($scenario['expectedBody'])) {
-            $actor->seeJsonEquals($scenario['expectedBody']);
+            $actor->seeJson($scenario['expectedBody']);
         }
     }
 }
