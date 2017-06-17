@@ -75,6 +75,8 @@ class CfgGenerator extends Object
             }
         }
 
+        rsort($lines);
+
         return implode("\n", $lines);
     }
 

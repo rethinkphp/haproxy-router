@@ -33,8 +33,8 @@ class CfgGeneratorTest extends TestCase
                     ],
                 ],
                 <<<ROUTES
-^docs.rethinkphp.com/ service_docs
 ^docs.rethinkphp.com/overview service_docs
+^docs.rethinkphp.com/ service_docs
 ROUTES
 
             ]
