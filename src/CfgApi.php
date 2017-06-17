@@ -321,11 +321,11 @@ class CfgApi extends Object
         return $this->_store['options'] ?? [];
     }
 
-    public function option($name)
+    public function option($name, $default = null)
     {
         $options = $this->_store['options'] ?? [];
 
-        return $options[$name] ?? null;
+        return $options[$name] ?? $default;
     }
 
     public function persist()

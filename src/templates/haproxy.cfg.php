@@ -58,7 +58,7 @@ listen stats
 
 
 frontend http-in
-    bind *:<?= $this->cfgApi->option('httpPort') . PHP_EOL ?>
+    bind *:<?= $this->cfgApi->option('httpPort', 80) . PHP_EOL ?>
     mode http
 
     timeout http-keep-alive 1000
@@ -71,7 +71,7 @@ frontend http-in
 
 
 frontend https-in
-    bind *:<?= $this->cfgApi->option('httpsPort') . PHP_EOL ?>
+    bind *:<?= $this->cfgApi->option('httpsPort', 443) . PHP_EOL ?>
     mode http
 
     use_backend %[base,map_reg(<?=$this->routeMap()?>)] if {  base,map_reg(<?=$this->routeMap()?>) -m found }
