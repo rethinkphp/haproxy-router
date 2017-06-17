@@ -47,7 +47,7 @@ defaults
     #errorfile 504 /etc/haproxy/errors/504.http
 
 listen stats
-    bind 0.0.0.0:1080 #Listen on localhost port 9000
+    bind 0.0.0.0:<?= $this->cfgApi->option('listen.ports.stats', 1080) . PHP_EOL ?>
     mode http
     stats enable
     stats refresh 10s
@@ -58,7 +58,7 @@ listen stats
 
 
 frontend http-in
-    bind *:<?= $this->cfgApi->option('httpPort', 80) . PHP_EOL ?>
+    bind *:<?= $this->cfgApi->option('listen.ports.http', 80) . PHP_EOL ?>
     mode http
 
     timeout http-keep-alive 1000
@@ -71,7 +71,7 @@ frontend http-in
 
 
 frontend https-in
-    bind *:<?= $this->cfgApi->option('httpsPort', 443) . PHP_EOL ?>
+    bind *:<?= $this->cfgApi->option('listen.ports.https', 443) . PHP_EOL ?>
     mode http
 
     use_backend %[base,map_reg(<?=$this->routeMap()?>)] if {  base,map_reg(<?=$this->routeMap()?>) -m found }

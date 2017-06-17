@@ -16,8 +16,8 @@ class HaproxyTest extends TestCase
     {
         $config = [
             'options' => [
-                'httpPort' => 8880,
-                'httpsPort' => 4443,
+                'listen.ports.http' => 8880,
+                'listen.ports.https' => 4443,
             ]
         ];
 
