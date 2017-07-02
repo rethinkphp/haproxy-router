@@ -2,7 +2,9 @@
 return [
     'request' => [
         'class' => \blink\http\Request::class,
-        'middleware' => [],
+        'middleware' => [
+            \rethink\hrouter\restapi\middleware\BasicAuth::class,
+        ],
     ],
     'response' => [
         'class' => \blink\http\Response::class,
