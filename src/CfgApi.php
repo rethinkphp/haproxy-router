@@ -188,6 +188,12 @@ class CfgApi extends Object
 
     public function deleteService(ServiceEntity $service)
     {
+        $routes = $this->findRoutes($service);
+        array_walk($routes, [$this, 'deleteRoute']);
+
+        $nodes = $this->findNodes($service);
+        array_walk($nodes, [$this, 'deleteNode']);
+
         return $this->removeEntity('services', $service);
     }
 
