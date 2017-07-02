@@ -1,7 +1,6 @@
 <?php
 return [
-    ['GET', '/', 'IndexController@sayHello'],
-
+    // RESTFull API for HAProxy management
     [
         '/api/v1',
         [
@@ -30,4 +29,8 @@ return [
 
         ]
     ],
+
+    // Endpoints for frontend APPs
+    ['GET', '/', 'IndexController@renderAssets'],
+    ['GET', '/{p1}[/{p2}[/{p3}[/{p4}]]]', 'IndexController@renderAssets'],
 ];
