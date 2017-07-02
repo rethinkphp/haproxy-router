@@ -5,6 +5,7 @@ namespace rethink\hrouter\entities;
 /**
  * Class RouteEntity
  *
+ * @property string $id
  * @property string $name
  * @property string $host
  * @property string $path
