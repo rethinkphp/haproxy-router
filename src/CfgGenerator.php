@@ -16,8 +16,6 @@ class CfgGenerator extends Object
 {
     public $template = __DIR__ . '/templates/haproxy.cfg.php';
     public $configDir;
-    public $httpPort = 80;
-    public $httpsPort = 443;
 
     /**
      * @var CfgApi
