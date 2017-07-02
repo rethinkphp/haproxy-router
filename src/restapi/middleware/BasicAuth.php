@@ -14,11 +14,11 @@ use blink\http\Request;
 class BasicAuth implements MiddlewareContract
 {
     /**
-     * @param Request $owner
+     * @param Request $request
      */
-    public function handle($owner)
+    public function handle($request)
     {
-        $value = $owner->headers->first('Authorization');
+        $value = $request->headers->first('Authorization');
         if (!$value) {
             goto error;
         }
