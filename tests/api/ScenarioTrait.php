@@ -16,10 +16,12 @@ trait ScenarioTrait
 
         $method = $scenario['method'] ?? 'get';
 
+        $apiPrefix = '/api/v1';
+
         if (in_array($method, ['get', 'delete'])) {
-            $actor->$method($scenario['path']);
+            $actor->$method($apiPrefix . $scenario['path']);
         } else {
-            $actor->$method($scenario['path'], $scenario['body'] ?? []);
+            $actor->$method($apiPrefix . $scenario['path'], $scenario['body'] ?? []);
         }
 
         $actor->seeStatusCode($scenario['expectedStatus']);
