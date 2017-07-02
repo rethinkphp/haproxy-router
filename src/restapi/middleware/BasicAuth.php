@@ -20,12 +20,12 @@ class BasicAuth implements MiddlewareContract
     {
         $value = $owner->headers->first('Authorization');
         if (!$value) {
-            return;
+            goto error;
         }
 
         $parts = preg_split('/\s+/', $value);
         if (count($parts) < 2 && strtolower($parts[0]) != 'basic') {
-            return;
+            goto error;
         }
 
         $haproxy = haproxy();
@@ -33,7 +33,7 @@ class BasicAuth implements MiddlewareContract
         if (base64_decode($parts[1]) == $haproxy->username . ':' . $haproxy->password) {
             return;
         }
-
+error:
         response()->headers->set('WWW-Authenticate', 'Basic');
         abort(401);
     }
