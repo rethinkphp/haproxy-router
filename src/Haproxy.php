@@ -16,6 +16,8 @@ class Haproxy extends Object
 {
     public $execFile = 'haproxy';
     public $configDir = __DIR__ . '/../runtime';
+    public $username = 'admin';
+    public $password = 'haproxy-router';
 
     public function init()
     {
@@ -39,6 +41,8 @@ class Haproxy extends Object
     {
         return new CfgApi([
             'configFile' => $this->getConfigFile(),
+            'username' => $this->username,
+            'password' => $this->password,
         ]);
     }
 

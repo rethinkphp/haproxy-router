@@ -20,6 +20,8 @@ use rethink\hrouter\support\ValidationException;
 class CfgApi extends Object
 {
     public $configFile;
+    public $username;
+    public $password;
 
     protected $_store = [];
 

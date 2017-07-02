@@ -54,7 +54,7 @@ listen stats
     stats hide-version
     stats realm Haproxy\ Statistics
     stats uri /haproxy_stats
-    stats auth seiue:haproxy
+    stats auth <?=$this->cfgApi->username?>:<?=$this->cfgApi->password . PHP_EOL?>
 
 
 frontend http-in
