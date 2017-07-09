@@ -11,8 +11,11 @@ trait ScenarioTrait
 {
     protected function runScenario($scenario)
     {
+        $credentials = haproxy()->username . ':' . haproxy()->password;
+
         $actor = $this->actor()
-            ->withJson();
+            ->withJson()
+            ->withHeaders(['Authorization' => 'Basic ' . base64_encode($credentials)]);
 
         $method = $scenario['method'] ?? 'get';
 
