@@ -7,6 +7,7 @@ use blink\core\InvalidParamException;
 use blink\core\Object;
 use blink\support\Json;
 use rethink\hrouter\entities\BaseEntity;
+use rethink\hrouter\entities\DomainEntity;
 use rethink\hrouter\entities\NodeEntity;
 use rethink\hrouter\entities\RouteEntity;
 use rethink\hrouter\entities\ServiceEntity;
@@ -42,6 +43,7 @@ class CfgApi extends Object
             'services' => ServiceEntity::class,
             'nodes' => NodeEntity::class,
             'routes' => RouteEntity::class,
+            'domains' => DomainEntity::class,
         ];
 
         foreach ($data as $storeName => $rows) {
@@ -114,6 +116,78 @@ class CfgApi extends Object
 
         return $removed;
     }
+
+    public function findDomains()
+    {
+        return $this->findAll('domains');
+    }
+
+    public function hasDomain($name)
+    {
+        $domains = $this->findAll('domains', ['name' => $name]);
+
+        return count($domains) > 0;
+    }
+
+    /**
+     * @param $name
+     * @return array|null
+     */
+    public function findDomain($name)
+    {
+        $domains = $this->findAll('domains', ['name' => $name]);
+
+        return $domains[0] ?? null;
+    }
+
+    public function findDomainOrFail($name)
+    {
+        $domain = $this->findDomain($name);
+
+        if (!$domain) {
+            // TODO we should not throw http exception here
+            return new HttpException(404);
+        }
+
+        return $domain;
+    }
+
+    /**
+     * Create a new domain.
+     *
+     * @param array $params
+     * @return DomainEntity
+     * @throws ValidationException
+     */
+    public function createDomain($params = [])
+    {
+        $name = $params['name'];
+
+        if ($this->findDomain($name)) {
+            throw ValidationException::fromArgs('name', "The domain '$name' is already exists");
+        }
+
+        $params['id'] = uniqid();
+
+        $domain = DomainEntity::fromArray($params);
+
+        $this->addEntity('domains', $domain);
+
+        return $domain;
+    }
+
+    public function updateDomain(DomainEntity $domain, array $params)
+    {
+        $domain->merge($params);
+
+        return $domain;
+    }
+
+    public function deleteDomain(DomainEntity $domain)
+    {
+        return $this->removeEntity('domains', $domain);
+    }
+
 
     /**
      * @return array

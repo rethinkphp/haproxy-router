@@ -22,6 +22,12 @@ return [
             ['PUT', '/services/{id}/routes/{routeId}', 'RouteController@update'],
             ['DELETE', '/services/{id}/routes/{routeId}', 'RouteController@delete'],
 
+            ['GET', '/domains', 'DomainController@index'],
+            ['POST', '/domains', 'DomainController@create'],
+            ['GET', '/domains/{id}', 'DomainController@view'],
+            ['PUT', '/domains/{id}', 'DomainController@update'],
+            ['DELETE', '/domains/{id}', 'DomainController@delete'],
+
             ['PUT', '/stats', 'StatsController@update'],
 
             ['POST', '/transactions', 'TransactionController@create'],

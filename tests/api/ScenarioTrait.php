@@ -27,6 +27,7 @@ trait ScenarioTrait
             $actor->$method($apiPrefix . $scenario['path'], $scenario['body'] ?? []);
         }
 
+        $actor->dumpJson();
         $actor->seeStatusCode($scenario['expectedStatus']);
 
         if (isset($scenario['expectedBody'])) {
