@@ -14,65 +14,46 @@ class RouteController extends BaseController
 {
     public function index($serviceId)
     {
-        $api = haproxy()->getCfgApi();
+        $service = services()->loadOrFail($serviceId);
 
-        $service = $api->findServiceOrFail($serviceId);
-
-        return $api->findRoutes($service);
+        return $service->routes;
     }
 
     public function create($serviceId, Request $request)
     {
-        $api = haproxy()->getCfgApi();
+        $service = services()->loadOrFail($serviceId);
 
-        $service = $api->findServiceOrFail($serviceId);
+        $attributes = $request->body->all();
+        $attributes['service_id'] = $service->id;
 
-        $node = $api->addRoute($service, $request->body->all());
-
-        $api->persist();
+        $route = routes()->create($attributes);
 
         haproxy()->reload(true);
 
-        return $this->ok($node);
+        return $this->ok($route);
     }
 
     public function view($serviceId, $routeId)
     {
-        $api = haproxy()->getCfgApi();
-
-        $service = $api->findServiceOrFail($serviceId);
-
-        return $api->findRoute($service, $routeId);
+        return routes()->loadInServiceOrFail($serviceId, $routeId);
     }
 
     public function update($serviceId, $routeId, Request $request)
     {
-        $api = haproxy()->getCfgApi();
+        $route = routes()->loadInServiceOrFail($serviceId, $routeId);
 
-        $service = $api->findServiceOrFail($serviceId);
-
-        $route = $api->findRouteOrFail($service, $routeId);
-
-        $node = $api->updateRoute($route, $request->body->all());
-
-        $api->persist();
+        $route = routes()->update($route, $request->body->all());
 
         haproxy()->reload(true);
 
-        return $this->ok($node, 200);
+        return $this->ok($route, 200);
     }
 
     public function delete($serviceId, $routeId)
     {
-        $api = haproxy()->getCfgApi();
+        $route = routes()->loadInServiceOrFail($serviceId, $routeId);
 
-        $service = $api->findServiceOrFail($serviceId);
-
-        $route = $api->findRouteOrFail($service, $routeId);
-
-        $api->deleteRoute($route);
-
-        $api->persist();
+        routes()->delete($route);
 
         haproxy()->reload(true);
 

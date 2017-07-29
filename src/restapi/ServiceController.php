@@ -4,6 +4,7 @@ namespace rethink\hrouter\restapi;
 
 use blink\http\Request;
 use rethink\hrouter\CfgApi;
+use rethink\hrouter\models\Service;
 
 /**
  * ServiceController class
@@ -12,20 +13,14 @@ class ServiceController extends BaseController
 {
     public function index()
     {
-        $api = haproxy()->getCfgApi();
-
-        return $api->findServices();
+        return services()->queryAll();
     }
 
     public function create(Request $request)
     {
-        $api = haproxy()->getCfgApi();
-
         $body = $request->getBody();
 
-        $service = $api->createService($body->all());
-
-        $api->persist();
+        $service = services()->create($body->all());
 
         haproxy()->reload(true);
 
@@ -34,17 +29,7 @@ class ServiceController extends BaseController
 
     public function update($name, Request $request)
     {
-        $api = haproxy()->getCfgApi();
-
-        $service = $api->findService($name);
-
-        if (!$service) {
-            return $this->notFound();
-        }
-
-        $service = $api->updateService($service, $request->body->all());
-
-        $api->persist();
+        $service = services()->update($name, $request->body->all());
 
         haproxy()->reload(true);
 
@@ -53,24 +38,12 @@ class ServiceController extends BaseController
 
     public function view($name)
     {
-        $api = haproxy()->getCfgApi();
-
-        return $api->findService($name);
+        return services()->loadOrFail($name);
     }
 
     public function delete($name)
     {
-        $api = haproxy()->getCfgApi();
-
-        $service = $api->findService($name);
-
-        if (!$service) {
-            return $this->notFound();
-        }
-
-        $api->deleteService($service);
-
-        $api->persist();
+        services()->delete($name);
 
         haproxy()->reload(true);
 

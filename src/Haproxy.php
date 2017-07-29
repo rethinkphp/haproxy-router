@@ -24,26 +24,9 @@ class Haproxy extends Object
         $this->configDir = normalize_path($this->configDir);
     }
 
-    public function getConfigFile()
-    {
-        return $this->configDir . '/config.json';
-    }
-
     public function getPidFile()
     {
         return $this->configDir . '/haproxy.pid';
-    }
-
-    /**
-     * @return CfgApi
-     */
-    public function getCfgApi()
-    {
-        return new CfgApi([
-            'configFile' => $this->getConfigFile(),
-            'username' => $this->username,
-            'password' => $this->password,
-        ]);
     }
 
     /**
@@ -82,10 +65,7 @@ class Haproxy extends Object
 
     protected function configure()
     {
-        $cfgApi = $this->getCfgApi();
-
         $config['configDir'] = $this->configDir;
-        $config['cfgApi'] = $cfgApi;
 
         $gen = new CfgGenerator($config);
 

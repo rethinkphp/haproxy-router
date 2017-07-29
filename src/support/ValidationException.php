@@ -5,6 +5,7 @@ namespace rethink\hrouter\support;
 use blink\core\Exception;
 use blink\support\Json;
 use blink\core\InvalidParamException;
+use Illuminate\Validation\Validator;
 
 /**
  * Class ValidationException
@@ -20,6 +21,28 @@ class ValidationException extends Exception
         $this->errors = $errors;
 
         parent::__construct('Validation Error: ' . Json::encode($errors, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), $code, $previous);
+    }
+
+    /**
+     * Create a ValidationException from a Validator.
+     *
+     * @param Validator $validator
+     * @return static
+     */
+    public static function fromValidator(Validator $validator)
+    {
+        $results = [];
+
+        foreach ($validator->errors()->getMessages() as $filed => $errors) {
+            foreach ($errors as $error) {
+                $results[] = [
+                    'field' => $filed,
+                    'message' => $error,
+                ];
+            }
+        }
+
+        return new static($results);
     }
 
     /**

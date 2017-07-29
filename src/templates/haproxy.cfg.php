@@ -13,6 +13,8 @@ global
     #group haproxy
     #daemon
 
+    #nbproc 2
+
     maxconn 99999
 
     tune.ssl.default-dh-param 2048
@@ -47,18 +49,29 @@ defaults
     #errorfile 504 /etc/haproxy/errors/504.http
 
 listen stats
-    bind 0.0.0.0:<?= $this->cfgApi->option('listen.ports.stats', 1080) . PHP_EOL ?>
+    bind 0.0.0.0:<?= $this->setting('listen.ports.stats', 1080) . PHP_EOL ?>
     mode http
     stats enable
     stats refresh 10s
     stats hide-version
     stats realm Haproxy\ Statistics
     stats uri /haproxy_stats
-    stats auth <?=$this->cfgApi->username?>:<?=$this->cfgApi->password . PHP_EOL?>
+    stats auth <?=$this->setting('username')?>:<?=$this->setting('password'). PHP_EOL?>
 
+#listen https-offloading
+#    bind *:81
+#    mode http
+
+#    server abc unix@/Users/seiue/projects/rethinkphp/haproxy-router/h.sock
+
+#frontend offloading
+#    bind unix@/Users/seiue/projects/rethinkphp/haproxy-router/h.sock
+#    mode http
+
+#    use_backend %[base,map_reg(<?=$this->routeMap()?>)] if {  base,map_reg(<?=$this->routeMap()?>) -m found }
 
 frontend http-in
-    bind *:<?= $this->cfgApi->option('listen.ports.http', 80) . PHP_EOL ?>
+    bind *:<?= $this->setting('listen.ports.http', 80) . PHP_EOL ?>
     mode http
 
     timeout http-keep-alive 1000
@@ -71,13 +84,13 @@ frontend http-in
 
 
 frontend https-in
-    bind *:<?= $this->cfgApi->option('listen.ports.https', 443) . PHP_EOL ?>
+    bind *:<?= $this->setting('listen.ports.https', 443) . PHP_EOL ?>
     mode http
 
     use_backend %[base,map_reg(<?=$this->routeMap()?>)] if {  base,map_reg(<?=$this->routeMap()?>) -m found }
 
 
-<?php foreach ($this->cfgApi->findServices() as $service):?>
+<?php foreach ($this->getServices() as $service):?>
 
 backend service_<?= $service['name'] ?>
 
@@ -97,8 +110,8 @@ backend service_<?= $service['name'] ?>
 
     option httpchk GET /
 
-<?php foreach ($this->cfgApi->findNodes($service) as $index => $service):?>
-    <?= $this->generateServer($service) . PHP_EOL?>
+<?php foreach ($service->nodes as $index => $node):?>
+    <?= $this->generateServer($node) . PHP_EOL?>
 <?php endforeach ?>
 
     compression algo gzip

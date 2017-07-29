@@ -13,22 +13,19 @@ class NodeController extends BaseController
 
     public function index($serviceId)
     {
-        $api = haproxy()->getCfgApi();
+        $service = services()->loadOrFail($serviceId);
 
-        $service = $api->findServiceOrFail($serviceId);
-
-        return $api->findNodes($service);
+        return $service->nodes;
     }
 
     public function create($serviceId, Request $request)
     {
-        $api = haproxy()->getCfgApi();
+        $service = services()->loadOrFail($serviceId);
 
-        $service = $api->findServiceOrFail($serviceId);
+        $attributes = $request->body->all();
+        $attributes['service_id'] = $service->id;
 
-        $node = $api->addNode($service, $request->body->all());
-
-        $api->persist();
+        $node = nodes()->create($attributes);
 
         haproxy()->reload(true);
 
@@ -37,21 +34,14 @@ class NodeController extends BaseController
 
     public function view($serviceId, $nodeId)
     {
-        $api = haproxy()->getCfgApi();
-
-        return $api->findNode($serviceId, $nodeId);
+        return nodes()->loadInServiceOrFail($serviceId, $nodeId);
     }
 
     public function update($serviceId, $nodeId, Request $request)
     {
-        $api = haproxy()->getCfgApi();
+        $node = nodes()->loadInServiceOrFail($serviceId, $nodeId);
 
-        $service = $api->findServiceOrFail($serviceId);
-        $node = $api->findNodeOrFail($service, $nodeId);
-
-        $node = $api->updateNode($node, $request->body->all());
-
-        $api->persist();
+        $node = nodes()->update($node, $request->body->all());
 
         haproxy()->reload(true);
 
@@ -60,14 +50,9 @@ class NodeController extends BaseController
 
     public function delete($serviceId, $nodeId)
     {
-        $api = haproxy()->getCfgApi();
+        $node = nodes()->loadInServiceOrFail($serviceId, $nodeId);
 
-        $service = $api->findServiceOrFail($serviceId);
-        $node = $api->findNodeOrFail($service, $nodeId);
-
-        $api->deleteNode($node);
-
-        $api->persist();
+        nodes()->delete($node);
 
         haproxy()->reload(true);
 

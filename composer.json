@@ -8,7 +8,11 @@
         }
     ],
     "require": {
-        "blink/blink": "dev-master"
+        "blink/blink": "dev-master",
+        "acmephp/core": "^1.0@beta",
+        "blink/laravel-database": "dev-master",
+        "illuminate/validation": "5.3.x-dev",
+        "blink/i18n": "dev-master"
     },
     "require-dev": {
         "phpunit/phpunit": "~5.0"
@@ -22,7 +26,8 @@
             "rethink\\hrouter\\tests\\": "tests"
         }
     },
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "config": {
         "vendor-dir": "vendor"
     }

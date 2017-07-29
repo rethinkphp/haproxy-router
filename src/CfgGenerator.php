@@ -17,10 +17,15 @@ class CfgGenerator extends Object
     public $template = __DIR__ . '/templates/haproxy.cfg.php';
     public $configDir;
 
-    /**
-     * @var CfgApi
-     */
-    public $cfgApi;
+    protected $settings = [
+        'username' => 'admin',
+        'password' => 'haproxy-router',
+    ];
+
+    public function init()
+    {
+        $this->settings = array_merge($this->settings, settings()->all());
+    }
 
     public function routeMap()
     {
@@ -30,6 +35,22 @@ class CfgGenerator extends Object
     public function httpsMap()
     {
         return normalize_path($this->configDir . '/https-hosts.map');
+    }
+
+    public function setting($name, $default = null)
+    {
+        return $this->settings[$name] ?? $default;
+    }
+
+    private $_services;
+
+    public function getServices()
+    {
+        if ($this->_services === null) {
+            $this->_services = services()->queryAll();
+        }
+
+        return $this->_services;
     }
 
 
@@ -82,10 +103,8 @@ class CfgGenerator extends Object
     {
         $routeMaps = [];
 
-        $services = $this->cfgApi->findServices();
-
-        foreach ($services as $service) {
-            $routeMaps[$service->name] = $this->cfgApi->findRoutes($service);
+        foreach ($this->getServices() as $service) {
+            $routeMaps[$service->name] = $service->routes;
         }
 
         return $routeMaps;

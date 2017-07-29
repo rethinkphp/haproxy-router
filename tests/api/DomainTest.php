@@ -13,13 +13,6 @@ class DomainTest extends TestCase
 {
     use ScenarioTrait;
 
-    public function setUp()
-    {
-        parent::setUp();
-
-        @unlink(haproxy()->getConfigFile());
-    }
-
     public function scenarios()
     {
         return [
@@ -56,7 +49,7 @@ class DomainTest extends TestCase
                 'expectedStatus' => 422,
                 'expectedBody' => [
                     [
-                        'message' => "The domain 'blog.rethinkphp.com' is already exists",
+                        'message' => "The name has already been taken.",
                         'field' => 'name',
                     ]
                 ],

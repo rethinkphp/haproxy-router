@@ -12,39 +12,21 @@ class DomainController extends BaseController
 {
     public function index()
     {
-        $api = haproxy()->getCfgApi();
-
-        return $api->findDomains();
+        return domains()->queryAll();
     }
 
     public function create(Request $request)
     {
-        $api = haproxy()->getCfgApi();
+        $attributes = $request->body->all();
 
-        $body = $request->getBody();
-
-        $domain = $api->createDomain($body->all());
-
-        $api->persist();
-
-        haproxy()->reload(true);
+        $domain = domains()->create($attributes);
 
         return $this->ok($domain);
     }
 
     public function update($name, Request $request)
     {
-        $api = haproxy()->getCfgApi();
-
-        $domain = $api->findDomain($name);
-
-        if (!$domain) {
-            return $this->notFound();
-        }
-
-        $domain = $api->updateDomain($domain, $request->body->all());
-
-        $api->persist();
+        $domain = domains()->update($name, $request->body->all());
 
         haproxy()->reload(true);
 
@@ -53,24 +35,12 @@ class DomainController extends BaseController
 
     public function view($name)
     {
-        $api = haproxy()->getCfgApi();
-
-        return $api->findDomain($name);
+        return domains()->loadOrFail($name);
     }
 
     public function delete($name)
     {
-        $api = haproxy()->getCfgApi();
-
-        $domain = $api->findDomain($name);
-
-        if (!$domain) {
-            return $this->notFound();
-        }
-
-        $api->deleteDomain($domain);
-
-        $api->persist();
+        domains()->delete($name);
 
         haproxy()->reload(true);
 

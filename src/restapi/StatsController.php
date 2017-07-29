@@ -16,7 +16,8 @@ class StatsController extends BaseController
         $status = $request->body->get('server_status');
 
         if ($status == 'running') {
-            haproxy()->start();
+            haproxy()->start($errors);
+            return $errors;
         } else if ($status == 'stopped') {
             haproxy()->stop();
         } else if ($status == 'reload') {

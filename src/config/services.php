@@ -24,8 +24,58 @@ return [
         'class' => 'blink\auth\Auth',
         'model' => 'app\models\User',
     ],
+    'capsule' => [
+        'class' => blink\laravel\database\Manager::class,
+        'fetch' => PDO::FETCH_CLASS,
+        'default' => BLINK_ENV === 'test' ? 'sqlite.test' : 'sqlite.prod',
+        'connections' => [
+            'sqlite.prod' => [
+                'driver'   => 'sqlite',
+                'database' => __DIR__.'/../../runtime/production.sqlite',
+                'prefix'   => '',
+            ],
+            'sqlite.test' => [
+                'driver'   => 'sqlite',
+                'database' => __DIR__.'/../../runtime/test.sqlite',
+                'prefix'   => '',
+            ],
+        ],
+    ],
+    'services' => [
+        'class' => \rethink\hrouter\services\Services::class,
+    ],
+    'nodes' => [
+        'class' => \rethink\hrouter\services\Nodes::class,
+    ],
+    'routes' => [
+        'class' => \rethink\hrouter\services\Routes::class,
+    ],
+    'domains' => [
+        'class' => \rethink\hrouter\services\Domains::class,
+    ],
+    'settings' => [
+        'class' => \rethink\hrouter\services\Settings::class,
+    ],
     'haproxy' => [
         'class' => \rethink\hrouter\Haproxy::class,
+    ],
+    'i18n' => [
+        'class' => blink\i18n\Translator::class,
+        'loaders' => [
+            'php' => Symfony\Component\Translation\Loader\PhpFileLoader::class,
+        ],
+        'resources' => [
+            [
+                'format' => 'php',
+                'resource' => __DIR__ . '/../i18n/en-US/messages.php',
+                'locale' => 'en-US'
+            ],
+            [
+                'format' => 'php',
+                'resource' => __DIR__ . '/../i18n/zh-CN/messages.php',
+                'locale' => 'zh-CN'
+            ]
+        ],
     ],
     'log' => [
         'class' => 'blink\log\Logger',

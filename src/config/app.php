@@ -88,6 +88,8 @@ return [
      *
      */
     'commands' => [
-
+        blink\laravel\database\commands\MigrateCommand::class,
+        blink\laravel\database\commands\MakeCommand::class,
+        blink\laravel\database\commands\ResetCommand::class,
     ],
 ];

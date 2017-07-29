@@ -5,6 +5,7 @@ namespace rethink\hrouter\tests\services;
 use rethink\hrouter\CfgApi;
 use rethink\hrouter\CfgGenerator;
 use rethink\hrouter\entities\RouteEntity;
+use rethink\hrouter\models\Route;
 use rethink\hrouter\tests\TestCase;
 
 /**
@@ -49,7 +50,9 @@ ROUTES
         $generator = new CfgGenerator();
 
         $routeMaps = array_map(function ($routes) {
-            return array_map([RouteEntity::class, 'fromArray'], $routes);
+            return array_map(function ($route) {
+                return new Route($route);
+            }, $routes);
         }, $routeMaps);
 
         $routes = $generator->generateRoutes($routeMaps);
@@ -60,9 +63,7 @@ ROUTES
 
     public function testGenerate()
     {
-        $cfgApi = new CfgApi();
-
-        $service = $cfgApi->createService([
+        $service = services()->create([
             'name' => 'rethinkphp',
             'host' => 'rethinkphp.com',
             'fullconn' => 100,
@@ -71,7 +72,8 @@ ROUTES
             ],
         ]);
 
-        $cfgApi->addNode($service, [
+        nodes()->create([
+            'service_id' => $service->id,
             'name' => 'node_1',
             'host' => '172.16.205.46:7788',
             'check' => true,
@@ -79,7 +81,6 @@ ROUTES
         ]);
 
         $generator = new CfgGenerator([
-            'cfgApi' => $cfgApi,
             'configDir' => app()->runtime . '/tests',
         ]);
 

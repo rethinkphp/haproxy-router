@@ -34,3 +34,42 @@ function haproxy()
     return app('haproxy');
 }
 
+/**
+ * @return \rethink\hrouter\services\Services
+ */
+function services()
+{
+    return app('services');
+}
+
+/**
+ * @return \rethink\hrouter\services\Nodes
+ */
+function nodes()
+{
+    return app('nodes');
+}
+
+/**
+ * @return \rethink\hrouter\services\Routes
+ */
+function routes()
+{
+    return app('routes');
+}
+
+/**
+ * @return \rethink\hrouter\services\Domains
+ */
+function domains()
+{
+    return app('domains');
+}
+
+/**
+ * @return \rethink\hrouter\services\Settings
+ */
+function settings()
+{
+    return app('settings');
+}

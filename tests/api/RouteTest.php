@@ -13,13 +13,6 @@ class RouteTest extends TestCase
 {
     use ScenarioTrait;
 
-    public function setUp()
-    {
-        parent::setUp();
-
-        @unlink(haproxy()->getConfigFile());
-    }
-
     public function scenarios()
     {
         return [

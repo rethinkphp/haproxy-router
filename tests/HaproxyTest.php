@@ -14,18 +14,12 @@ class HaproxyTest extends TestCase
 {
     public function testHaproxyManagement()
     {
-        $config = [
-            'options' => [
-                'listen.ports.http' => 8880,
-                'listen.ports.https' => 4443,
-            ]
-        ];
+        settings()->setMultiple([
+            'listen.ports.http' => 8880,
+            'listen.ports.https' => 4443,
+        ]);
 
         $haproxy = haproxy();
-
-        $configFile = $haproxy->getConfigFile();
-
-        file_put_contents($configFile, Json::encode($config));
 
         $retval = $haproxy->start($output);
 

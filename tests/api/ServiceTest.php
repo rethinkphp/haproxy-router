@@ -13,13 +13,6 @@ class ServiceTest extends TestCase
 {
     use ScenarioTrait;
 
-    public function setUp()
-    {
-        parent::setUp();
-
-        @unlink(haproxy()->getConfigFile());
-    }
-
     public function scenarios()
     {
         return [
@@ -56,7 +49,7 @@ class ServiceTest extends TestCase
                 'expectedStatus' => 422,
                 'expectedBody' => [
                     [
-                        'message' => "The service 'foo' is already exists",
+                        'message' => "The name has already been taken.",
                         'field' => 'name',
                     ]
                 ],
@@ -68,12 +61,10 @@ class ServiceTest extends TestCase
                 'path' => '/services/foo',
                 'body' => [
                     'name' => 'foo2',
-                    'host' => 'foo2.rethinkphp.com',
                 ],
                 'expectedStatus' => 200,
                 'expectedBody' => [
                     'name' => 'foo2',
-                    'host' => 'foo2.rethinkphp.com',
                 ],
             ],
 
@@ -91,7 +82,6 @@ class ServiceTest extends TestCase
                 'expectedStatus' => 200,
                 'expectedBody' => [
                     'name' => 'foo2',
-                    'host' => 'foo2.rethinkphp.com',
                 ],
             ],
         ];

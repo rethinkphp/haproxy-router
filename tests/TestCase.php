@@ -7,6 +7,14 @@ use blink\testing\TestCase as BaseTestCase;
 class TestCase extends BaseTestCase
 {
 
+    public function setUp()
+    {
+        parent::setUp();
+
+        system('echo "" > runtime/test.sqlite');
+        system('php router migrate > /dev/null');
+    }
+
     public function createApplication()
     {
         $app = require __DIR__ . '/../src/bootstrap.php';
