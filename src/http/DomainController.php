@@ -1,6 +1,6 @@
 <?php
 
-namespace rethink\hrouter\restapi;
+namespace rethink\hrouter\http;
 
 use blink\http\Request;
 use rethink\hrouter\CfgApi;

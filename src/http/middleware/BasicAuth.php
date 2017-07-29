@@ -1,6 +1,6 @@
 <?php
 
-namespace rethink\hrouter\restapi\middleware;
+namespace rethink\hrouter\http\middleware;
 
 
 use blink\core\MiddlewareContract;

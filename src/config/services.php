@@ -3,13 +3,13 @@ return [
     'request' => [
         'class' => \blink\http\Request::class,
         'middleware' => [
-            \rethink\hrouter\restapi\middleware\BasicAuth::class,
+            \rethink\hrouter\http\middleware\BasicAuth::class,
         ],
     ],
     'response' => [
         'class' => \blink\http\Response::class,
         'middleware' => [
-            \rethink\hrouter\restapi\middleware\ResponseFormatter::class,
+            \rethink\hrouter\http\middleware\ResponseFormatter::class,
         ],
     ],
     'session' => [
