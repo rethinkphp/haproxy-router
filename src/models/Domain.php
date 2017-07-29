@@ -19,6 +19,9 @@ class Domain extends Model
 {
     protected $table = 'domains';
     protected $fillable = ['id', 'name', 'description', 'tls_only', 'certificate'];
+    protected $casts = [
+        'tls_only' => 'bool',
+    ];
 
     public $incrementing = false;
 }
