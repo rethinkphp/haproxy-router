@@ -34,7 +34,7 @@ class CfgGenerator extends Object
 
     public function httpsMap()
     {
-        return normalize_path($this->configDir . '/https-hosts.map');
+        return normalize_path($this->configDir . '/tls-hosts.map');
     }
 
     public function setting($name, $default = null)
@@ -110,6 +110,20 @@ class CfgGenerator extends Object
         return $routeMaps;
     }
 
+    public function generateTlsHosts()
+    {
+        $domains = domains()->queryAll();
+        $results = [];
+
+        foreach ($domains as $domain) {
+            if ($domain->tls_only) {
+               $results[] = $domain->name;
+            }
+        }
+
+        return implode("\n", $results);
+    }
+
     /**
      * @return array
      */
@@ -124,7 +138,7 @@ class CfgGenerator extends Object
         return [
             'haproxy.cfg' => $conf,
             'routes.map' => $this->generateRoutes($this->extractRoutes()),
-            'https-hosts.map' => '',
+            'tls-hosts.map' => $this->generateTlsHosts(),
         ];
     }
 }

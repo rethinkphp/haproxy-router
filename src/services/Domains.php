@@ -36,6 +36,10 @@ class Domains extends ModelService
         return Domain::query()->where('name', $name)->exists();
     }
 
+    /**
+     * @param array $params
+     * @return \Illuminate\Database\Eloquent\Collection|Domain[]
+     */
     public function queryAll(array $params = [])
     {
         return Domain::query()->get();
