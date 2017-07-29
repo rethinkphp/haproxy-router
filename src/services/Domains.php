@@ -31,6 +31,11 @@ class Domains extends ModelService
             ->first();
     }
 
+    public function has($name)
+    {
+        return Domain::query()->where('name', $name)->exists();
+    }
+
     public function queryAll(array $params = [])
     {
         return Domain::query()->get();

@@ -20,4 +20,9 @@ class Route extends Model
     protected $fillable = ['id', 'service_id', 'name', 'host', 'path'];
 
     public $incrementing = false;
+
+    public function domain()
+    {
+        return $this->hasOne(Domain::class, 'name', 'host');
+    }
 }

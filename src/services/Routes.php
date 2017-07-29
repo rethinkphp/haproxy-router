@@ -90,6 +90,8 @@ class Routes extends ModelService
         $route->fill($attributes);
         $route->save();
 
+        $this->createDomainIfNeeded($route);
+
         return $route;
     }
 
@@ -100,7 +102,22 @@ class Routes extends ModelService
         $route->fill($attributes);
         $route->save();
 
+        $this->createDomainIfNeeded($route);
+
         return $route;
+    }
+
+    protected function createDomainIfNeeded(Route $route)
+    {
+        $domains = domains();
+
+        if ($domains->has($route->host))  {
+            return;
+        }
+
+        $domains->create([
+            'name' => $route->host,
+        ]);
     }
 
     public function delete($route)
