@@ -21,6 +21,7 @@ class InitTables extends Migration
 
             $table->timestamps();
 
+            $table->primary('id');
             $table->unique(['name']);
         });
 
@@ -35,6 +36,7 @@ class InitTables extends Migration
 
             $table->timestamps();
 
+            $table->primary('id');
             $table->unique(['service_id', 'name']);
         });
 
@@ -49,6 +51,7 @@ class InitTables extends Migration
 
             $table->timestamps();
 
+            $table->primary('id');
             $table->unique(['service_id', 'name']);
         });
 
@@ -63,6 +66,7 @@ class InitTables extends Migration
 
             $table->timestamps();
 
+            $table->primary('id');
             $table->unique(['name']);
         });
 
@@ -70,7 +74,7 @@ class InitTables extends Migration
             $table->string('name')->notNull();
             $table->string('value')->notNull();
 
-            $table->unique(['name']);
+            $table->primary('name');
         });
     }
 
