@@ -40,7 +40,7 @@ class Haproxy extends Object
         $pidFile = $this->getPidFile();
 
         if (!file_exists($pidFile)) {
-            return false;
+            return $this->start();
         }
 
         if ($reconfigure) {
