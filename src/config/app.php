@@ -91,5 +91,7 @@ return [
         blink\laravel\database\commands\MigrateCommand::class,
         blink\laravel\database\commands\MakeCommand::class,
         blink\laravel\database\commands\ResetCommand::class,
+        rethink\hrouter\console\ServiceInstallCommand::class,
+        rethink\hrouter\console\ServiceUninstallCommand::class,
     ],
 ];

@@ -73,3 +73,30 @@ function settings()
 {
     return app('settings');
 }
+
+function whoami()
+{
+    return posix_getpwuid(posix_geteuid())['name'];
+}
+
+function root_privilege_is_required()
+{
+    if (whoami() !== 'root') {
+        throw new \RuntimeException('Root privilege is required to install service');
+    }
+}
+
+function get_systemd_unit_dir()
+{
+    ob_start();
+
+    system('pkg-config systemd --variable=systemdsystemunitdir 2> /dev/null', $retval);
+
+    $output = ob_get_clean();
+
+    if ($retval !== 0) {
+        throw new \RuntimeException('Unable to get the directory of systemd unit files');
+    }
+
+    return trim($output);
+}
