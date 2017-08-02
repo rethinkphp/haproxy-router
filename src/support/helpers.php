@@ -100,3 +100,8 @@ function get_systemd_unit_dir()
 
     return trim($output);
 }
+
+function env($name, $default = null)
+{
+    return getenv($name) ?: $default;
+}

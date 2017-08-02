@@ -44,7 +44,7 @@ class ServiceInstallCommand extends BaseServer
 Description=Haproxy Router
 
 [Service]
-#EnvironmentFile=-/etc/default/ssh
+EnvironmentFile=-/etc/default/haproxy-router
 Type=forking
 ExecStart={php}{bin_file} server:start
 ExecReload={php}{bin_file} server:reload
