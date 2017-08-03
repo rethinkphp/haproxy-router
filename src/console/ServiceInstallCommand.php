@@ -27,6 +27,7 @@ class ServiceInstallCommand extends BaseServer
     public function execute(InputInterface $input, OutputInterface $output)
     {
         root_privilege_is_required();
+        pkg_config_is_required();
 
         $dist = get_systemd_unit_dir() . '/haproxy-router.service';
 

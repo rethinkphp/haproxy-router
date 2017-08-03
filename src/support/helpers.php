@@ -86,6 +86,15 @@ function root_privilege_is_required()
     }
 }
 
+function pkg_config_is_required()
+{
+    system('which pkg-config >/dev/null', $retval);
+
+    if ($retval !== 0) {
+        throw new \RuntimeException('It seems pkg-config not missing from your system, please install it first');
+    }
+}
+
 function get_systemd_unit_dir()
 {
     ob_start();
