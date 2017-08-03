@@ -2,7 +2,6 @@
 
 namespace rethink\hrouter;
 
-
 use blink\core\Object;
 
 /**
@@ -63,19 +62,19 @@ class Haproxy extends Object
      */
     public function reload($reconfigure = false)
     {
+        if ($reconfigure) {
+            $this->configure();
+        }
+
         if ($this->supervised) {
             exec($this->commands['reload'], $output, $retval);
-            return $retval;
+            goto out;
         }
 
         $pidFile = $this->getPidFile();
 
         if (!file_exists($pidFile)) {
             return $this->start();
-        }
-
-        if ($reconfigure) {
-            $this->configure();
         }
 
         $pid = file_get_contents($pidFile);
@@ -91,7 +90,8 @@ class Haproxy extends Object
 
         exec($command, $output, $retval);
 
-        return $retval;
+out:
+        return $this->logAndReturn('Failed to reload haproxy service', $retval, $output);
     }
 
     public function configure()
@@ -117,9 +117,11 @@ class Haproxy extends Object
      */
     public function start(&$output = null)
     {
+        $this->configure();
+
         if ($this->supervised) {
             exec($this->commands['start'], $output, $retval);
-            return $retval;
+            goto out;
         }
 
         $pidFile = $this->getPidFile();
@@ -127,8 +129,6 @@ class Haproxy extends Object
         if (file_exists($pidFile)) {
             return false;
         }
-
-        $this->configure();
 
         $command = sprintf(
             '%s -D -p %s -f %s 2>&1',
@@ -139,7 +139,9 @@ class Haproxy extends Object
 
         exec($command, $output, $retval);
 
-        return $retval;
+out:
+
+        return $this->logAndReturn('Failed to start haproxy service', $retval, $output);
     }
 
     /**
@@ -151,7 +153,7 @@ class Haproxy extends Object
     {
         if ($this->supervised) {
             exec($this->commands['stop'], $output, $retval);
-            return $retval;
+            return $this->logAndReturn('Failed to stop haproxy service', $retval, $output);
         }
 
         $pidFile = $this->getPidFile();
@@ -169,5 +171,14 @@ class Haproxy extends Object
         unlink($pidFile);
 
         return true;
+    }
+
+    protected function logAndReturn($prefix, $retval, $output)
+    {
+        if ($retval !== 0) {
+            logger()->error($prefix . ":\n" . implode("\n", $output));
+        }
+
+        return $retval;
     }
 }
