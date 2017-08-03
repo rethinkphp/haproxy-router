@@ -90,12 +90,12 @@ function get_systemd_unit_dir()
 {
     ob_start();
 
-    system('pkg-config systemd --variable=systemdsystemunitdir 2> /dev/null', $retval);
+    system('pkg-config systemd --variable=systemdsystemunitdir 2>&1', $retval);
 
     $output = ob_get_clean();
 
     if ($retval !== 0) {
-        throw new \RuntimeException('Unable to get the directory of systemd unit files');
+        throw new \RuntimeException("Unable to get the directory of systemd unit files:\n" . $output);
     }
 
     return trim($output);
