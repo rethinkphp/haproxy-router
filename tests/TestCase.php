@@ -25,11 +25,12 @@ class TestCase extends BaseTestCase
             mkdir($runtimeDir);
         }
 
-        $app->services = array_merge_recursive(
+        $app->services = array_replace_recursive(
             require __DIR__ . '/../src/config/services.php',
             [
                 'haproxy' => [
                     'configDir' => $runtimeDir,
+                    'supervised' => false,
                 ],
             ]
         );

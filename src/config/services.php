@@ -58,6 +58,14 @@ return [
     ],
     'haproxy' => [
         'class' => \rethink\hrouter\Haproxy::class,
+        'executable' => env('haproxy_executable', 'haproxy'),
+        'configDir' => env('haproxy_config_dir', '/etc/haproxy'),
+        'supervised' => env('haproxy_supervised', 1),
+        'commands' => [
+            'start' => env('haproxy_exec_start', 'service haproxy start'),
+            'stop' => env('haproxy_exec_stop', 'service haproxy stop'),
+            'reload' => env('haproxy_exec_reload', 'service haproxy reload'),
+        ],
     ],
     'i18n' => [
         'class' => blink\i18n\Translator::class,

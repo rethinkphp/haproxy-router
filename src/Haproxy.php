@@ -8,14 +8,40 @@ use blink\core\Object;
 /**
  * Class Haproxy
  *
- * @property CfgApi $cfgApi
- *
  * @package rethink\hrouter\services
  */
 class Haproxy extends Object
 {
-    public $execFile = 'haproxy';
+    /**
+     * Whether or not to run haproxy under a system supervisor, such as systemd.
+     *
+     * It is recommended to be true under production systems.
+     *
+     * @var bool
+     */
+    public $supervised = false;
+
+    /**
+     * The haproxy executable file paht.
+     *
+     * @var string
+     */
+    public $executable = 'haproxy';
+
+    /**
+     * The config dir used by haproxy.
+     *
+     * @var string
+     */
     public $configDir = __DIR__ . '/../runtime';
+
+    /**
+     * Service control commands used to control haproxy service when `supervised` is enabled.
+     *
+     * @var array
+     */
+    public $commands = [];
+
     public $username = 'admin';
     public $password = 'haproxy-router';
 
@@ -37,6 +63,11 @@ class Haproxy extends Object
      */
     public function reload($reconfigure = false)
     {
+        if ($this->supervised) {
+            exec($this->commands['reload'], $output, $retval);
+            return $retval;
+        }
+
         $pidFile = $this->getPidFile();
 
         if (!file_exists($pidFile)) {
@@ -52,7 +83,7 @@ class Haproxy extends Object
 
         $command = sprintf(
             '%s -D -p %s -f %s -sf %s 2>&1',
-            $this->execFile,
+            $this->executable,
             $pidFile,
             $this->configDir . '/haproxy.cfg',
             $pid
@@ -63,7 +94,7 @@ class Haproxy extends Object
         return $retval;
     }
 
-    protected function configure()
+    public function configure()
     {
         $config['configDir'] = $this->configDir;
 
@@ -86,6 +117,11 @@ class Haproxy extends Object
      */
     public function start(&$output = null)
     {
+        if ($this->supervised) {
+            exec($this->commands['start'], $output, $retval);
+            return $retval;
+        }
+
         $pidFile = $this->getPidFile();
 
         if (file_exists($pidFile)) {
@@ -96,7 +132,7 @@ class Haproxy extends Object
 
         $command = sprintf(
             '%s -D -p %s -f %s 2>&1',
-            $this->execFile,
+            $this->executable,
             $pidFile,
             $this->configDir . '/haproxy.cfg'
         );
@@ -113,6 +149,11 @@ class Haproxy extends Object
      */
     public function stop()
     {
+        if ($this->supervised) {
+            exec($this->commands['stop'], $output, $retval);
+            return $retval;
+        }
+
         $pidFile = $this->getPidFile();
 
         if (!file_exists($pidFile)) {
