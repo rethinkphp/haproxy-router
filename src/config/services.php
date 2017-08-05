@@ -67,6 +67,9 @@ return [
             'reload' => env('haproxy_exec_reload', 'service haproxy reload'),
         ],
     ],
+    'challenges' => [
+        'class'=> \rethink\hrouter\services\Challenges::class,
+    ],
     'acme' => [
         'class' => \rethink\hrouter\services\Acme::class,
         'email' => env('acme_email', 'haproxy-router@rethinkphp.com'),

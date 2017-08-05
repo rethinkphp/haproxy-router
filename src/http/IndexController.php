@@ -11,6 +11,15 @@ use blink\core\Object;
  */
 class IndexController extends Object
 {
+    public function renderChallenge($token)
+    {
+        $challenge = challenges()->loadByToken($token);
+
+        if ($challenge) {
+            return $challenge->payload;
+        }
+    }
+
     protected function resolveRequestedPath($args)
     {
         $basePath = app()->runtime . '/ui';

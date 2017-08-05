@@ -77,6 +77,9 @@ frontend http-in
     timeout http-keep-alive 1000
     option http-server-close
 
+    acl letsencrypt-acl path_beg /.well-known/acme-challenge/
+    use_backend letsencrypt-backend if letsencrypt-acl
+
     acl is_https hdr(Host),map_reg(<?=$this->httpsMap()?>) -m found
     redirect scheme https code 301 if is_https
 
@@ -84,11 +87,16 @@ frontend http-in
 
 
 frontend https-in
-    bind *:<?= $this->setting('listen.ports.https', 443) . PHP_EOL ?>
+    bind *:<?= $this->setting('listen.ports.https', 443)?> ssl crt certs
     mode http
+
+    acl letsencrypt-acl path_beg /.well-known/acme-challenge/
+    use_backend letsencrypt-backend if letsencrypt-acl
 
     use_backend %[base,map_reg(<?=$this->routeMap()?>)] if {  base,map_reg(<?=$this->routeMap()?>) -m found }
 
+backend letsencrypt-backend
+    server letsencrypt 127.0.0.1:9812
 
 <?php foreach ($this->getServices() as $service):?>
 

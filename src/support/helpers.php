@@ -75,6 +75,14 @@ function settings()
 }
 
 /**
+ * @return \rethink\hrouter\services\Challenges
+ */
+function challenges()
+{
+    return app('challenges');
+}
+
+/**
  * @return \rethink\hrouter\services\Acme
  */
 function acme()

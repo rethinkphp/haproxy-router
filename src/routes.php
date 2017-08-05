@@ -36,6 +36,8 @@ return [
         ]
     ],
 
+    ['GET', '/.well-known/acme-challenge/{id}', 'IndexController@renderChallenge'],
+
     // Endpoints for frontend APPs
     ['GET', '/', 'IndexController@renderAssets'],
     ['GET', '/{p1}[/{p2}[/{p3}[/{p4}]]]', 'IndexController@renderAssets'],

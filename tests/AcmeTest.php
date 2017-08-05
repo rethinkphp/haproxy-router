@@ -4,6 +4,8 @@ namespace rethink\hrouter\tests;
 
 use AcmePhp\Core\AcmeClient;
 use AcmePhp\Ssl\KeyPair;
+use rethink\hrouter\models\Challenge;
+use rethink\hrouter\models\Domain;
 
 /**
  * Class AcmeTest
@@ -37,5 +39,16 @@ class AcmeTest extends TestCase
         $result = acme()->registerAccount();
 
         $this->assertTrue($result);
+    }
+
+    public function testRequestAuthorization()
+    {
+        acme()->registerAccount();
+
+        $domain = new Domain(['name' => 'test.rethinkphp.me']);
+        $challenge = acme()->requestAuthorization($domain);
+        $this->assertInstanceOf(Challenge::class, $challenge);
+
+        $this->assertTrue(Challenge::query()->where('domain', $domain->name)->exists());
     }
 }
