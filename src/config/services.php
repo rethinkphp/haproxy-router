@@ -67,6 +67,11 @@ return [
             'reload' => env('haproxy_exec_reload', 'service haproxy reload'),
         ],
     ],
+    'acme' => [
+        'class' => \rethink\hrouter\services\Acme::class,
+        'email' => env('acme_email', 'haproxy-router@rethinkphp.com'),
+        'directoryUrl' => env('acme_directory_url', 'http://localhost:4001/directory'),
+    ],
     'i18n' => [
         'class' => blink\i18n\Translator::class,
         'loaders' => [

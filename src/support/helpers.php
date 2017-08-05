@@ -74,6 +74,14 @@ function settings()
     return app('settings');
 }
 
+/**
+ * @return \rethink\hrouter\services\Acme
+ */
+function acme()
+{
+    return app('acme');
+}
+
 function whoami()
 {
     return posix_getpwuid(posix_geteuid())['name'];
