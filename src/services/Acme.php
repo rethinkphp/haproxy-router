@@ -80,7 +80,7 @@ class Acme extends Object
         ]);
     }
 
-    protected function deserializeKeyPair($pair): KeyPair
+    public function deserializeKeyPair(string $pair): KeyPair
     {
         $pair = Json::decode($pair);
 

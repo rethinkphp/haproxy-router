@@ -27,10 +27,19 @@ class Domain extends Model
 
     protected $table = 'domains';
     protected $fillable = ['id', 'name', 'description', 'tls_only', 'tls_provider', 'key_pair', 'certificate', 'dist_names'];
+    protected $hidden = ['key_pair'];
     protected $casts = [
         'tls_only' => 'bool',
         'dist_names' => 'array',
     ];
 
     public $incrementing = false;
+
+    /**
+     * @return \AcmePhp\Ssl\KeyPair
+     */
+    public function getKeyPair()
+    {
+        return acme()->deserializeKeyPair($this->key_pair);
+    }
 }

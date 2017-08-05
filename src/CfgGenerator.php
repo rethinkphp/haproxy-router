@@ -2,10 +2,13 @@
 
 namespace rethink\hrouter;
 
+use AcmePhp\Ssl\KeyPair;
 use blink\core\Object;
 
+use blink\support\Json;
 use function normalize_path;
 use rethink\hrouter\entities\RouteEntity;
+use rethink\hrouter\models\Domain;
 
 /**
  * Class CfgGenerator
@@ -25,6 +28,11 @@ class CfgGenerator extends Object
     public function init()
     {
         $this->settings = array_merge($this->settings, settings()->all());
+
+        $certsPath = $this->certsPath();
+        if (!file_exists($certsPath)) {
+           mkdir($certsPath);
+        }
     }
 
     public function routeMap()
@@ -35,6 +43,11 @@ class CfgGenerator extends Object
     public function httpsMap()
     {
         return normalize_path($this->configDir . '/tls-hosts.map');
+    }
+
+    public function certsPath()
+    {
+        return normalize_path($this->configDir . '/certs');
     }
 
     public function setting($name, $default = null)
@@ -53,6 +66,19 @@ class CfgGenerator extends Object
         return $this->_services;
     }
 
+    private $_domains;
+
+    /**
+     * @return Domain[]
+     */
+    public function getDomains()
+    {
+        if ($this->_domains === null) {
+            $this->_domains = domains()->queryAll();
+        }
+
+        return $this->_domains;
+    }
 
     /**
      * Generate a server line
@@ -112,16 +138,40 @@ class CfgGenerator extends Object
 
     public function generateTlsHosts()
     {
-        $domains = domains()->queryAll();
         $results = [];
 
-        foreach ($domains as $domain) {
+        foreach ($this->getDomains() as $domain) {
             if ($domain->tls_only) {
                $results[] = $domain->name;
             }
         }
 
         return implode("\n", $results);
+    }
+
+    protected function generateCertificate(KeyPair $keyPair, string $certificate)
+    {
+        list($certPem, $chainPem) = Json::decode($certificate);
+
+        return $certPem . $chainPem . $keyPair->getPrivateKey()->getPEM();
+    }
+
+    /**
+     * @return array
+     */
+    public function generateCertificates()
+    {
+        $certificates = [];
+
+        foreach ($this->getDomains() as $domain) {
+            if (!$domain->certificate) {
+                continue;
+            }
+
+            $certificates[$domain->name . '.pem'] = $this->generateCertificate($domain->getKeyPair(), $domain->certificate);
+        }
+
+        return $certificates;
     }
 
     /**
@@ -135,10 +185,16 @@ class CfgGenerator extends Object
 
         $conf = ob_get_clean();
 
-        return [
+        $files = [
             'haproxy.cfg' => $conf,
             'routes.map' => $this->generateRoutes($this->extractRoutes()),
             'tls-hosts.map' => $this->generateTlsHosts(),
         ];
+
+        foreach ($this->generateCertificates() as $name => $certificate) {
+            $files['certs/' . $name] = $certificate;
+        }
+
+        return $files;
     }
 }

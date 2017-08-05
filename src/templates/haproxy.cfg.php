@@ -19,10 +19,6 @@ global
 
     tune.ssl.default-dh-param 2048
 
-    # Default SSL material locations
-    ca-base /usr/local/etc/haproxy/ssl/certs
-    crt-base /usr/local/etc/haproxy/ssl/private
-
     # Default ciphers to use on SSL-enabled listening sockets.
     # For more information, see ciphers(1SSL). This list is from:
     #  https://hynek.me/articles/hardening-your-web-servers-ssl-ciphers/
@@ -87,7 +83,7 @@ frontend http-in
 
 
 frontend https-in
-    bind *:<?= $this->setting('listen.ports.https', 443)?> ssl crt certs
+    bind *:<?= $this->setting('listen.ports.https', 443)?> ssl crt <?=$this->certsPath() . PHP_EOL?>
     mode http
 
     acl letsencrypt-acl path_beg /.well-known/acme-challenge/
