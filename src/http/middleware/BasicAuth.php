@@ -18,6 +18,11 @@ class BasicAuth implements MiddlewareContract
      */
     public function handle($request)
     {
+        $path = $request->path();
+        if (starts_with($path, '/.well-known/acme-challenge')) {
+            return;
+        }
+
         $value = $request->headers->first('Authorization');
         if (!$value) {
             goto error;
