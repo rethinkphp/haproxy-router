@@ -27,7 +27,7 @@ class Domain extends Model
     const TLS_PROVIDER_ACME   = 'acme';
 
     protected $table = 'domains';
-    protected $fillable = ['id', 'name', 'description', 'tls_only', 'tls_provider', 'key_pair', 'certificate', 'dist_names'];
+    protected $fillable = ['id', 'name', 'description', 'tls_only', 'tls_provider', 'key_pair', 'certificate', 'certificate2', 'dist_names'];
     protected $hidden = ['key_pair', 'certificate', 'dist_names'];
     protected $casts = [
         'tls_only' => 'bool',
