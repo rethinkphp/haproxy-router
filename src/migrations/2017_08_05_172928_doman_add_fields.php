@@ -27,7 +27,7 @@ class DomanAddFields extends Migration
     public function down()
     {
         capsule_schema()->table('domains', function (Blueprint $table) {
-            $table->dropColumn('tls_provier');
+            $table->dropColumn('tls_provider');
             $table->dropColumn('key_pair');
             $table->dropColumn('dist_names');
         });
