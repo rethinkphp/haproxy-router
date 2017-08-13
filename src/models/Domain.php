@@ -43,4 +43,11 @@ class Domain extends Model
     {
         return acme()->deserializeKeyPair($this->key_pair);
     }
+
+    public function hasCertificate()
+    {
+        return ($this->tls_provider == self::TLS_PROVIDER_ACME && $this->certificate)
+            || ($this->tls_provider == self::TLS_PROVIDER_MANUAL && $this->certificate2)
+        ;
+    }
 }

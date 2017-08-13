@@ -86,6 +86,18 @@ class CfgGenerator extends Object
         return $this->_domains;
     }
 
+
+    public function hasCertificates()
+    {
+        foreach ($this->getDomains() as $domain) {
+            if ($domain->hasCertificate()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /**
      * Generate a server line
      *

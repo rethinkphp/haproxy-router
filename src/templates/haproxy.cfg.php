@@ -83,7 +83,11 @@ frontend http-in
 
 
 frontend https-in
+<?php if ($this->hasCertificates()): ?>
     bind *:<?= $this->setting('listen.ports.https', 443)?> ssl crt <?=$this->certsPath() . PHP_EOL?>
+<?php else: ?>
+    bind *:<?= $this->setting('listen.ports.https', 443)?>
+<?php endif ?>
     mode http
 
     acl letsencrypt-acl path_beg /.well-known/acme-challenge/
