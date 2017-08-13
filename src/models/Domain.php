@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @property string|null $key_pair
  * @property string|null $certificate
+ * @property string|null $certificate2 The field is used when $tls_provider == manual
  *
  * @property bool $tls_only
  * @property string $tls_provider
@@ -27,7 +28,7 @@ class Domain extends Model
 
     protected $table = 'domains';
     protected $fillable = ['id', 'name', 'description', 'tls_only', 'tls_provider', 'key_pair', 'certificate', 'dist_names'];
-    protected $hidden = ['key_pair'];
+    protected $hidden = ['key_pair', 'certificate', 'dist_names'];
     protected $casts = [
         'tls_only' => 'bool',
         'dist_names' => 'array',

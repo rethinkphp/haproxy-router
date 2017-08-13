@@ -2,6 +2,9 @@
 
 namespace rethink\hrouter\services;
 
+use AcmePhp\Ssl\Certificate;
+use AcmePhp\Ssl\Exception\CertificateParsingException;
+use AcmePhp\Ssl\Parser\CertificateParser;
 use rethink\hrouter\models\Domain;
 use Illuminate\Database\Eloquent\Builder;
 use rethink\hrouter\support\ValidationException;
@@ -73,6 +76,29 @@ class Domains extends ModelService
     public function update($domain, array $attributes)
     {
         $domain = $this->loadOrFail($domain);
+
+        $validator = validate($attributes, [
+            'certificate2' => 'sometimes|cert',
+        ]);
+
+        $validator->addExtension('cert', function ($attribute, $value, $parameters) {
+            $certificate = new Certificate($value);
+
+            try {
+                (new CertificateParser())->parse($certificate);
+                return true;
+            } catch (CertificateParsingException $e) {
+                return false;
+            }
+        });
+
+        $validator->setCustomMessages([
+            'cert' => 'The supplied certificate is invalid',
+        ]);
+
+        if ($validator->fails()) {
+            throw ValidationException::fromValidator($validator);
+        }
 
         $domain->fill($attributes);
         $domain->save();
