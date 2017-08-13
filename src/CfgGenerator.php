@@ -167,11 +167,17 @@ class CfgGenerator extends Object
         return implode("\n", $results);
     }
 
-    protected function generateCertificate(KeyPair $keyPair, string $certificate)
+    protected function generateCertificate(Domain $domain)
     {
-        list($certPem, $chainPem) = Json::decode($certificate);
+        if ($domain->tls_provider != Domain::TLS_PROVIDER_MANUAL) {
+            $keyPair = $domain->getKeyPair();
+            list($certPem, $chainPem) = Json::decode($domain->certificate);
+            $certificate = $certPem . $chainPem . $keyPair->getPrivateKey()->getPEM();
+        } else {
+            $certificate = $domain->certificate2;
+        }
 
-        return $certPem . $chainPem . $keyPair->getPrivateKey()->getPEM();
+        return $certificate;
     }
 
     /**
@@ -182,14 +188,14 @@ class CfgGenerator extends Object
         $certificates = [];
 
         foreach ($this->getDomains() as $domain) {
-            if (!$domain->certificate) {
+            if (!$domain->hasCertificate()) {
                 continue;
             }
 
-            $certificates[$domain->name . '.pem'] = $this->generateCertificate($domain->getKeyPair(), $domain->certificate);
+            $certificates[$domain->name . '.pem'] = $this->generateCertificate($domain);
         }
 
-        return $certificates;
+        return array_unique($certificates);
     }
 
     /**
