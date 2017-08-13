@@ -18,7 +18,10 @@ use rethink\hrouter\models\Domain;
 class CfgGenerator extends Object
 {
     public $template = __DIR__ . '/templates/haproxy.cfg.php';
-    public $configDir;
+    /**
+     * @var Haproxy
+     */
+    public $haproxy;
 
     protected $settings = [
         'username' => 'admin',
@@ -28,6 +31,9 @@ class CfgGenerator extends Object
     public function init()
     {
         $this->settings = array_merge($this->settings, settings()->all());
+        if (!$this->haproxy) {
+            $this->haproxy = haproxy();
+        }
 
         $certsPath = $this->certsPath();
         if (!file_exists($certsPath)) {
@@ -37,17 +43,17 @@ class CfgGenerator extends Object
 
     public function routeMap()
     {
-        return normalize_path($this->configDir . '/routes.map');
+        return normalize_path($this->haproxy->configDir . '/routes.map');
     }
 
     public function httpsMap()
     {
-        return normalize_path($this->configDir . '/tls-hosts.map');
+        return normalize_path($this->haproxy->configDir . '/tls-hosts.map');
     }
 
     public function certsPath()
     {
-        return normalize_path($this->configDir . '/certs');
+        return normalize_path($this->haproxy->configDir . '/certs');
     }
 
     public function setting($name, $default = null)

@@ -96,9 +96,7 @@ out:
 
     public function configure()
     {
-        $config['configDir'] = $this->configDir;
-
-        $gen = new CfgGenerator($config);
+        $gen = new CfgGenerator();
 
         $files = $gen->generate();
 

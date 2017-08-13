@@ -80,9 +80,7 @@ ROUTES
             'backup' => true,
         ]);
 
-        $generator = new CfgGenerator([
-            'configDir' => app()->runtime . '/tests',
-        ]);
+        $generator = new CfgGenerator();
 
         $conf = $generator->generate();
 
