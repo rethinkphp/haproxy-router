@@ -2,6 +2,7 @@
 
 namespace rethink\hrouter\tests\unit;
 
+use rethink\hrouter\models\Domain;
 use rethink\hrouter\support\ValidationException;
 use rethink\hrouter\tests\TestCase;
 
@@ -16,6 +17,7 @@ class DomainTest extends TestCase
     {
         return [
             [
+                Domain::TLS_PROVIDER_MANUAL,
                 'invalid certificate',
                 false,
                 [
@@ -26,6 +28,7 @@ class DomainTest extends TestCase
                 ]
             ],
             [
+                Domain::TLS_PROVIDER_MANUAL,
                 '-----BEGIN CERTIFICATE-----
 MIIFijCCBHKgAwIBAgITAP+qRDFWSe3TiEaVN0cCPHnwKjANBgkqhkiG9w0BAQsF
 ADAfMR0wGwYDVQQDDBRoMnBweSBoMmNrZXIgZmFrZSBDQTAeFw0xNzA4MDUwNjA3
@@ -61,6 +64,12 @@ UXsyuUMsWGRRLPLle/XakHu5Fwgtqa7cJKGhQRKC
 ',
                 true,
                 [],
+            ],
+            [
+                Domain::TLS_PROVIDER_ACME,
+                null,
+                true,
+                [],
             ]
         ];
     }
@@ -68,9 +77,9 @@ UXsyuUMsWGRRLPLle/XakHu5Fwgtqa7cJKGhQRKC
     /**
      * @dataProvider certificates
      */
-    public function testValidateCertificate($certificate, $result, $errors)
+    public function testValidateCertificate($provider, $certificate, $result, $errors)
     {
-        $domain = domains()->create(['name' => 'foo.rethinkphp.com']);
+        $domain = domains()->create(['name' => 'foo.rethinkphp.com', 'tls_provider' => $provider]);
 
         try {
             domains()->update($domain, ['certificate2' => $certificate]);

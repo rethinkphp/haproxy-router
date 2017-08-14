@@ -81,7 +81,11 @@ class Domains extends ModelService
             'certificate2' => 'sometimes|cert',
         ]);
 
-        $validator->addExtension('cert', function ($attribute, $value, $parameters) {
+        $validator->addExtension('cert', function ($attribute, $value, $parameters) use ($domain) {
+            if ($domain->tls_provider != Domain::TLS_PROVIDER_MANUAL) {
+                return true;
+            }
+
             $certificate = new Certificate($value);
 
             try {
