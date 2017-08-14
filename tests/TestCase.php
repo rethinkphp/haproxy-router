@@ -32,6 +32,9 @@ class TestCase extends BaseTestCase
                     'configDir' => $runtimeDir,
                     'supervised' => false,
                 ],
+                'acme' => [
+                    'directoryUrl' => 'http://localhost:4001/directory',
+                ],
             ]
         );
 
