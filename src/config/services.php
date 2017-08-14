@@ -61,6 +61,8 @@ return [
         'executable' => env('haproxy_executable', 'haproxy'),
         'configDir' => env('haproxy_config_dir', '/etc/haproxy'),
         'supervised' => env('haproxy_supervised', 1),
+        'username' => env('username', 'admin'),
+        'password' => env('password', 'haproxy-router'),
         'commands' => [
             'start' => env('haproxy_exec_start', 'service haproxy start'),
             'stop' => env('haproxy_exec_stop', 'service haproxy stop'),
