@@ -34,11 +34,6 @@ class CfgGenerator extends Object
         if (!$this->haproxy) {
             $this->haproxy = haproxy();
         }
-
-        $certsPath = $this->certsPath();
-        if (!file_exists($certsPath)) {
-           mkdir($certsPath);
-        }
     }
 
     public function routeMap()
@@ -53,7 +48,9 @@ class CfgGenerator extends Object
 
     public function certsPath()
     {
-        return normalize_path($this->haproxy->configDir . '/certs');
+        $path = get_existed_path($this->haproxy->configDir . '/certs');
+
+        return normalize_path($path);
     }
 
     public function setting($name, $default = null)

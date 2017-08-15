@@ -90,6 +90,15 @@ function acme()
     return app('acme');
 }
 
+function get_existed_path($path)
+{
+    if (!file_exists($path)) {
+        mkdir($path, 0777, true);
+    }
+
+    return $path;
+}
+
 function whoami()
 {
     return posix_getpwuid(posix_geteuid())['name'];
