@@ -62,8 +62,8 @@ class Haproxy extends Object
      */
     public function reload($reconfigure = false)
     {
-        if ($reconfigure) {
-            $this->configure();
+        if ($reconfigure && (!$this->configure())) {
+            return false;
         }
 
         if ($this->supervised) {
@@ -100,11 +100,44 @@ out:
 
         $files = $gen->generate();
 
+        if (!$this->isConfigValid($files)) {
+            return false;
+        }
+
+        $this->saveFiles($files, $this->configDir);
+        return true;
+    }
+
+    protected function saveFiles($files, $dir)
+    {
         foreach ($files as $name => $content) {
-            $configFile = $this->configDir . '/' . $name;
+            $configFile = $dir . '/' . $name;
 
             file_put_contents($configFile, $content);
         }
+    }
+
+    /**
+     * Check whether the config is valid.
+     *
+     * @param $files
+     * @return boolean
+     */
+    public function isConfigValid($files)
+    {
+        $path = get_existed_path(app()->runtime . '/tmp');
+
+        $this->saveFiles($files, $path);
+
+        $command = sprintf(
+            '%s -c -f %s 2>&1',
+            $this->executable,
+            $path . '/haproxy.cfg'
+        );
+
+        exec($command, $output, $retval);
+
+        return $retval === 0;
     }
 
     /**
@@ -115,7 +148,9 @@ out:
      */
     public function start(&$output = null)
     {
-        $this->configure();
+        if (!$this->configure()) {
+            return false;
+        }
 
         if ($this->supervised) {
             exec($this->commands['start'], $output, $retval);
