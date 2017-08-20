@@ -30,7 +30,6 @@ defaults
     #option    httplog
     #option    dontlognull
     option forwardfor
-    option http-server-close
     timeout connect 5000
     timeout client  500000
     timeout server  500000
@@ -78,7 +77,6 @@ frontend http-in
     capture request header User-Agent len 128
 
     timeout http-keep-alive 1000
-    option http-server-close
 
     acl letsencrypt-acl path_beg /.well-known/acme-challenge/
     use_backend letsencrypt-backend if letsencrypt-acl
@@ -120,8 +118,6 @@ backend service_<?= $service['name'] ?>
     mode http
     fullconn <?= ($service['fullconn'] ?? 9999) . PHP_EOL?>
     option forwardfor
-    option forceclose
-    #option httpclose
 
     http-request set-header X-Forwarded-Port %[dst_port]
     http-request add-header X-Forwarded-Proto https if { ssl_fc }
