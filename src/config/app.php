@@ -88,7 +88,7 @@ return [
      *
      */
     'commands' => [
-        blink\laravel\database\commands\MigrateCommand::class,
+        \rethink\hrouter\console\MigrateCommand::class,
         blink\laravel\database\commands\MakeCommand::class,
         blink\laravel\database\commands\ResetCommand::class,
         rethink\hrouter\console\ServiceInstallCommand::class,
