@@ -4,10 +4,9 @@
  */
 ?>
 global
-    #log /dev/log    local0
-    #log /dev/log    local1 notice
-    #chroot /var/lib/haproxy
     stats socket 0.0.0.0:9999 mode 660 level admin
+    log /dev/log local0 info
+    chroot /var/lib/haproxy
     stats timeout 300s
     #user haproxy
     #group haproxy
@@ -26,7 +25,7 @@ global
     ssl-default-bind-options no-sslv3
 
 defaults
-    #log    global
+    log    global
     mode    http
     #option    httplog
     #option    dontlognull
@@ -70,6 +69,14 @@ frontend http-in
     bind *:<?= $this->setting('listen.ports.http', 80) . PHP_EOL ?>
     mode http
 
+    option httplog
+
+    log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
+
+    capture request header Host len 32
+    capture request header Referer len 128
+    capture request header User-Agent len 128
+
     timeout http-keep-alive 1000
     option http-server-close
 
@@ -89,6 +96,14 @@ frontend https-in
     bind *:<?= $this->setting('listen.ports.https', 443)?>
 <?php endif ?>
     mode http
+
+    option httplog
+
+    log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ %Tq/%Tw/%Tc/%Tr/%Tt\ %ST\ %B\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r
+
+    capture request header Host len 32
+    capture request header Referer len 128
+    capture request header User-Agent len 128
 
     acl letsencrypt-acl path_beg /.well-known/acme-challenge/
     use_backend letsencrypt-backend if letsencrypt-acl
