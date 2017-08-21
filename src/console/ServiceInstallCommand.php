@@ -33,6 +33,11 @@ class ServiceInstallCommand extends BaseServer
 
         file_put_contents($dist, $a = $this->getServiceConfig($input->getOption('php')));
 
+        $envFile = '/etc/default/haproxy-router';
+        if (!file_exists($envFile)) {
+            file_put_contents($envFile, $this->getEnvConfig());
+        }
+
         system('systemctl enable haproxy-router');
 
         $this->info('System service installed successfully.');
@@ -64,5 +69,27 @@ EOD;
             '{bin_file}' => $this->blink->root . '/router',
             '{pid_file}' => $this->getPidFile(),
         ]);
+    }
+
+    protected function getEnvConfig()
+    {
+       return <<<EOD
+#listen_host=127.0.0.1
+#listen_port=9812
+
+#username=admin
+#password=haproxy-router
+
+#haproxy_executable=haproxy
+#haproxy_config_dir=/etc/haproxy
+#haproxy_supervised=1
+
+#haproxy_exec_start=service haproxy start
+#haproxy_exec_stop=service haproxy stop
+#haproxy_exec_reload=service haproxy reload
+
+#acme_email=haproxy-router@rethinkphp.com
+#acme_directory_url=https://acme-v01.api.letsencrypt.org/directory
+EOD;
     }
 }
