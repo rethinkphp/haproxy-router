@@ -31,7 +31,7 @@ return [
         'connections' => [
             'sqlite.prod' => [
                 'driver'   => 'sqlite',
-                'database' => __DIR__.'/../../runtime/production.sqlite',
+                'database' => __DIR__.'/../../runtime/prod.sqlite',
                 'prefix'   => '',
             ],
             'sqlite.test' => [
