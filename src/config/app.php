@@ -66,7 +66,7 @@ return [
      *
      */
 
-    'runtime' => realpath(__DIR__ . '/../../runtime'),
+    'runtime' => normalize_path(__DIR__ . '/../../runtime'),
 
     /*------------------------------------------------------------------
      * Default Controller Namespace
