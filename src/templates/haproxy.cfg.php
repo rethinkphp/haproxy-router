@@ -111,7 +111,7 @@ frontend https-in
 backend letsencrypt-backend
     server letsencrypt 127.0.0.1:9812
 
-<?php foreach ($this->getServices() as $service):?>
+<?php foreach ($this->services as $service):?>
 
 backend service_<?= $service['name'] ?>
 

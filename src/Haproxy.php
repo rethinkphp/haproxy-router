@@ -49,6 +49,13 @@ class Haproxy extends Object
         $this->configDir = normalize_path($this->configDir);
     }
 
+    public function newCfgGenerator()
+    {
+        return new CfgGenerator([
+            'haproxy' => $this,
+        ]);
+    }
+
     public function getPidFile()
     {
         return $this->configDir . '/haproxy.pid';
@@ -96,43 +103,32 @@ out:
 
     public function configure()
     {
-        $gen = new CfgGenerator();
+        $cfg = $this->newCfgGenerator();
 
-        $files = $gen->generate();
-
-        if (!$this->isConfigValid($files)) {
+        if (!$this->isConfigValid($cfg)) {
             return false;
         }
 
-        $this->saveFiles($files, $this->configDir);
+        $cfg->generate($this->configDir);
         return true;
-    }
-
-    protected function saveFiles($files, $dir)
-    {
-        foreach ($files as $name => $content) {
-            $configFile = $dir . '/' . $name;
-
-            file_put_contents($configFile, $content);
-        }
     }
 
     /**
      * Check whether the config is valid.
      *
-     * @param $files
+     * @param $cfg
      * @return boolean
      */
-    public function isConfigValid($files)
+    public function isConfigValid(CfgGenerator $cfg)
     {
         $path = get_existed_path(app()->runtime . '/tmp');
 
-        $this->saveFiles($files, $path);
+        $configFile = $cfg->generate($path);
 
         $command = sprintf(
             '%s -c -f %s 2>&1',
             $this->executable,
-            $path . '/haproxy.cfg'
+            $configFile
         );
 
         exec($command, $output, $retval);

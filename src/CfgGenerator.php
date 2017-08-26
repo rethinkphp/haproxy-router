@@ -9,6 +9,7 @@ use blink\support\Json;
 use function normalize_path;
 use rethink\hrouter\entities\RouteEntity;
 use rethink\hrouter\models\Domain;
+use rethink\hrouter\models\Service;
 
 /**
  * Class CfgGenerator
@@ -23,33 +24,46 @@ class CfgGenerator extends Object
      */
     public $haproxy;
 
+    protected $configDir;
+
     protected $settings = [];
+    /**
+     * @var Service[]
+     */
+    protected $services = [];
+
+    /**
+     * @var Domain[]
+     */
+    protected $domains = [];
+
 
     public function init()
     {
-        if (!$this->haproxy) {
-            $this->haproxy = haproxy();
-        }
+        $this->haproxy = $this->haproxy ?: haproxy();
 
         $this->settings = array_merge([
             'username' => $this->haproxy->username,
             'password' => $this->haproxy->password,
         ], settings()->all());
+
+        $this->services = services()->queryAll();
+        $this->domains  = domains()->queryAll();
     }
 
     public function routeMap()
     {
-        return normalize_path($this->haproxy->configDir . '/routes.map');
+        return normalize_path($this->configDir . '/routes.map');
     }
 
     public function httpsMap()
     {
-        return normalize_path($this->haproxy->configDir . '/tls-hosts.map');
+        return normalize_path($this->configDir . '/tls-hosts.map');
     }
 
     public function certsPath()
     {
-        $path = get_existed_path($this->haproxy->configDir . '/certs');
+        $path = get_existed_path($this->configDir . '/certs');
 
         return normalize_path($path);
     }
@@ -59,35 +73,9 @@ class CfgGenerator extends Object
         return $this->settings[$name] ?? $default;
     }
 
-    private $_services;
-
-    public function getServices()
-    {
-        if ($this->_services === null) {
-            $this->_services = services()->queryAll();
-        }
-
-        return $this->_services;
-    }
-
-    private $_domains;
-
-    /**
-     * @return Domain[]
-     */
-    public function getDomains()
-    {
-        if ($this->_domains === null) {
-            $this->_domains = domains()->queryAll();
-        }
-
-        return $this->_domains;
-    }
-
-
     public function hasCertificates()
     {
-        foreach ($this->getDomains() as $domain) {
+        foreach ($this->domains as $domain) {
             if ($domain->hasCertificate()) {
                 return true;
             }
@@ -145,7 +133,7 @@ class CfgGenerator extends Object
     {
         $routeMaps = [];
 
-        foreach ($this->getServices() as $service) {
+        foreach ($this->services as $service) {
             $routeMaps[$service->name] = $service->routes;
         }
 
@@ -156,7 +144,7 @@ class CfgGenerator extends Object
     {
         $results = [];
 
-        foreach ($this->getDomains() as $domain) {
+        foreach ($this->domains as $domain) {
             if ($domain->tls_only) {
                $results[] = $domain->name;
             }
@@ -185,7 +173,7 @@ class CfgGenerator extends Object
     {
         $certificates = [];
 
-        foreach ($this->getDomains() as $domain) {
+        foreach ($this->domains as $domain) {
             if (!$domain->hasCertificate()) {
                 continue;
             }
@@ -197,10 +185,15 @@ class CfgGenerator extends Object
     }
 
     /**
-     * @return array
+     * Generate config file for HAProxy.
+     *
+     * @param string $configDir
+     * @return string
      */
-    public function generate()
+    public function generate($configDir = null)
     {
+        $this->configDir = get_existed_path($configDir ?: $this->haproxy->configDir);
+
         ob_start();
 
         require $this->template;
@@ -217,6 +210,12 @@ class CfgGenerator extends Object
             $files['certs/' . $name] = $certificate;
         }
 
-        return $files;
+        foreach ($files as $name => $content) {
+            $configFile = $configDir . '/' . $name;
+
+            file_put_contents($configFile, $content);
+        }
+
+        return $this->configDir . '/haproxy.cfg';
     }
 }

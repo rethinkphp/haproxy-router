@@ -82,8 +82,11 @@ ROUTES
 
         $generator = new CfgGenerator();
 
-        $conf = $generator->generate();
+        $configDir = app()->runtime . '/tests/tmp';
 
-        $this->assertContains('server node_1 172.16.205.46:7788 check backup', $conf['haproxy.cfg']);
+        $configFile = $generator->generate($configDir);
+
+        $this->assertTrue(file_exists($configFile));
+        $this->assertContains('server node_1 172.16.205.46:7788 check backup', file_get_contents($configFile));
     }
 }
