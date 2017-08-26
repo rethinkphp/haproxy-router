@@ -8,7 +8,7 @@ return [
      *
      */
 
-    'name' => 'my app',
+    'name' => 'haproxy-router',
 
     /*------------------------------------------------------------------
      * Application Root Path
@@ -30,7 +30,7 @@ return [
      *
      */
 
-    'timezone' => 'UTC',
+    'timezone' => env('timezone', 'UTC'),
 
     /*------------------------------------------------------------------
      * Application Debug Mode
@@ -42,7 +42,7 @@ return [
      *
      */
 
-    'debug' => true,
+    'debug' => (boolean)env('debug', 1),
 
     /*------------------------------------------------------------------
      * Application Environment
@@ -66,7 +66,7 @@ return [
      *
      */
 
-    'runtime' => normalize_path(__DIR__ . '/../../runtime'),
+    'runtime' => env('runtime_dir', normalize_path(__DIR__ . '/../../runtime')),
 
     /*------------------------------------------------------------------
      * Default Controller Namespace
