@@ -2,3 +2,5 @@
 !.gitignore
 vendor/
 runtime/
+env.*
+!env.example
