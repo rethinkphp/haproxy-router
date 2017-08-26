@@ -23,17 +23,18 @@ class CfgGenerator extends Object
      */
     public $haproxy;
 
-    protected $settings = [
-        'username' => 'admin',
-        'password' => 'haproxy-router',
-    ];
+    protected $settings = [];
 
     public function init()
     {
-        $this->settings = array_merge($this->settings, settings()->all());
         if (!$this->haproxy) {
             $this->haproxy = haproxy();
         }
+
+        $this->settings = array_merge([
+            'username' => $this->haproxy->username,
+            'password' => $this->haproxy->password,
+        ], settings()->all());
     }
 
     public function routeMap()
