@@ -12,18 +12,6 @@ return [
             \rethink\hrouter\http\middleware\ResponseFormatter::class,
         ],
     ],
-    'session' => [
-        'class' => 'blink\session\Manager',
-        'expires' => 3600 * 24 * 15,
-        'storage' => [
-            'class' => 'blink\session\FileStorage',
-            'path' => __DIR__ . '/../../runtime/sessions'
-        ]
-    ],
-    'auth' => [
-        'class' => 'blink\auth\Auth',
-        'model' => 'app\models\User',
-    ],
     'capsule' => [
         'class' => blink\laravel\database\Manager::class,
         'fetch' => PDO::FETCH_CLASS,
