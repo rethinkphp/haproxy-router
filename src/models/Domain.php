@@ -50,4 +50,20 @@ class Domain extends Model
             || ($this->tls_provider == self::TLS_PROVIDER_MANUAL && $this->certificate2)
         ;
     }
+
+    public function isAcme()
+    {
+        return $this->tls_provider == self::TLS_PROVIDER_ACME;
+    }
+
+    public function isCertificateRequested()
+    {
+        return (boolean)$this->certificate;
+    }
+
+    public function isReviewRequired()
+    {
+        // TODO
+        return false;
+    }
 }

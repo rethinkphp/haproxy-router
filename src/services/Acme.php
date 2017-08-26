@@ -6,6 +6,7 @@ namespace rethink\hrouter\services;
 use AcmePhp\Core\AcmeClient;
 use AcmePhp\Core\Exception\Protocol\ChallengeNotSupportedException;
 use AcmePhp\Core\Exception\Protocol\ProtocolException;
+use AcmePhp\Core\Exception\Server\MalformedServerException;
 use AcmePhp\Core\Http\Base64SafeEncoder;
 use AcmePhp\Core\Http\SecureHttpClient;
 use AcmePhp\Core\Http\ServerErrorHandler;
@@ -34,7 +35,8 @@ use rethink\hrouter\models\Domain;
  */
 class Acme extends Object
 {
-    const SETTING_ACCOUNT_KEY_PAIR = 'acme.account_key_pair';
+    const SETTING_ACCOUNT_KEY_PAIR   = 'acme.account_key_pair';
+    const SETTING_ACCOUNT_REGISTERED = 'acme.account_registered';
 
     public $email;
     public $agreement;
@@ -99,6 +101,16 @@ class Acme extends Object
         return $pair;
     }
 
+    protected function isAccountRegistered()
+    {
+        return settings()->get(self::SETTING_ACCOUNT_REGISTERED, false);
+    }
+
+    protected function markAccountRegistered()
+    {
+        settings()->set(self::SETTING_ACCOUNT_REGISTERED, true);
+    }
+
     /**
      * @return AcmeClient
      */
@@ -121,6 +133,25 @@ class Acme extends Object
         $this->getClient()->registerAccount($this->agreement, $this->email);
 
         return true;
+    }
+
+    public function ensureAccountRegistered()
+    {
+        if ($this->isAccountRegistered()) {
+            return;
+        }
+
+        try {
+            $this->registerAccount();
+            goto end;
+        } catch (MalformedServerException $e) {
+            if (strpos($e->getMessage(), 'Registration key is already in use') !== false) {
+                goto end;
+            }
+            throw $e;
+        }
+end:
+        $this->markAccountRegistered();
     }
 
     /**
@@ -241,5 +272,50 @@ class Acme extends Object
             $certPem,
             implode("\n", $chainPems),
         ]);
+    }
+
+    public function refreshCertificatesIfNeeded()
+    {
+        $domains = domains()->queryAll();
+
+        foreach ($domains as $domain) {
+            if (!$domain->isAcme()) {
+                continue;
+            }
+
+            $this->refreshCertificate($domain);
+        }
+    }
+
+    protected function refreshCertificate(Domain $domain)
+    {
+        try {
+            if (!$domain->isCertificateRequested()) {
+                $this->handleCertificateRequest($domain);
+            } else if ($domain->isReviewRequired()) {
+                $this->handleCertificateRenew($domain);
+            }
+        } catch (\Throwable $e) {
+            app()->errorHandler->handleException($e);
+        }
+    }
+
+    protected function handleCertificateRequest(Domain $domain)
+    {
+        $this->ensureAccountRegistered();
+
+        logger()->info('request authorization for ' . $domain->name);
+        $this->requestAuthorization($domain);
+
+        logger()->info('challenge authorization for ' . $domain->name);
+        $this->challengeAuthorization($domain);
+
+        logger()->info('request certificate for ' . $domain->name);
+        $this->requestCertificate($domain);
+    }
+
+    protected function handleCertificateRenew(Domain $domain)
+    {
+        // TBD
     }
 }
