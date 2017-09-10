@@ -141,12 +141,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/bixuehujin/blink.git",
-                "reference": "b833b6cb453e3fc572a3677ec037806097eae512"
+                "reference": "a165277c323a5143ffdb734a4b7ea9b60f6f594a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://files.phpcomposer.com/files/bixuehujin/blink/b833b6cb453e3fc572a3677ec037806097eae512.zip",
-                "reference": "b833b6cb453e3fc572a3677ec037806097eae512",
+                "url": "https://files.phpcomposer.com/files/bixuehujin/blink/a165277c323a5143ffdb734a4b7ea9b60f6f594a.zip",
+                "reference": "a165277c323a5143ffdb734a4b7ea9b60f6f594a",
                 "shasum": ""
             },
             "require": {
@@ -154,7 +154,8 @@
                 "nikic/fast-route": "1.2.*",
                 "php": ">=5.6.0",
                 "psy/psysh": "^0.7.2",
-                "symfony/console": "^3.0"
+                "symfony/console": "^3.0",
+                "symfony/dotenv": "^3.3"
             },
             "require-dev": {
                 "phpunit/phpunit": "~5.0"
@@ -188,7 +189,7 @@
                 "restful",
                 "swoole"
             ],
-            "time": "2017-07-25 15:06:46"
+            "time": "2017-09-10 15:58:07"
         },
         {
             "name": "blink/i18n",
@@ -1546,6 +1547,63 @@
             "description": "Symfony Debug Component",
             "homepage": "https://symfony.com",
             "time": "2017-07-05 13:02:37"
+        },
+        {
+            "name": "symfony/dotenv",
+            "version": "v3.3.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/dotenv.git",
+                "reference": "0bbd618051dc828c0013e1ecdb653d956df8bfb3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://files.phpcomposer.com/files/symfony/dotenv/0bbd618051dc828c0013e1ecdb653d956df8bfb3.zip",
+                "reference": "0bbd618051dc828c0013e1ecdb653d956df8bfb3",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5.9"
+            },
+            "require-dev": {
+                "symfony/process": "^3.2"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.3-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Dotenv\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Registers environment variables from a .env file",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "dotenv",
+                "env",
+                "environment"
+            ],
+            "time": "2017-07-06 12:23:24"
         },
         {
             "name": "symfony/finder",
