@@ -17,7 +17,7 @@ Service:
     hosts: [
         {
             pattern: 'rethinkphp.com',
-            protocal: 'https'
+            protocol: 'https'
         } 
     ],
     routes: [
