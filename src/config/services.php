@@ -65,6 +65,9 @@ return [
         'email' => env('acme_email', 'haproxy-router@rethinkphp.com'),
         'directoryUrl' => env('acme_directory_url', 'https://acme-v01.api.letsencrypt.org/directory'),
     ],
+    'queue' => [
+        'class' => \rethink\hrouter\queue\Queue::class,
+    ],
     'i18n' => [
         'class' => blink\i18n\Translator::class,
         'loaders' => [

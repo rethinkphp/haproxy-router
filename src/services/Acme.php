@@ -250,7 +250,7 @@ end:
         $domain->certificate = $this->serializeCertificate($response->getCertificate());
         $domain->save();
 
-        haproxy()->reload(true);
+        haproxy()->reloadAsync(true);
 
         return true;
     }

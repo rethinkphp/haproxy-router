@@ -141,12 +141,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/bixuehujin/blink.git",
-                "reference": "c8fa067977d4f2dc50ef7fba80c21880c4f20c6c"
+                "reference": "b1f97f6cea7f350ad04517e176c06cc03fd7789f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://files.phpcomposer.com/files/bixuehujin/blink/c8fa067977d4f2dc50ef7fba80c21880c4f20c6c.zip",
-                "reference": "c8fa067977d4f2dc50ef7fba80c21880c4f20c6c",
+                "url": "https://files.phpcomposer.com/files/bixuehujin/blink/b1f97f6cea7f350ad04517e176c06cc03fd7789f.zip",
+                "reference": "b1f97f6cea7f350ad04517e176c06cc03fd7789f",
                 "shasum": ""
             },
             "require": {

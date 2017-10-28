@@ -3,6 +3,7 @@
 namespace rethink\hrouter;
 
 use blink\core\Object;
+use rethink\hrouter\queue\ReloadHaproxyJob;
 
 /**
  * Class Haproxy
@@ -99,6 +100,17 @@ class Haproxy extends Object
 
 out:
         return $this->logAndReturn('Failed to reload haproxy service', $retval, $output);
+    }
+
+    public function reloadAsync($reconfigure = false)
+    {
+        if (BLINK_ENV == 'test') {
+            return;
+        }
+
+        queue()->push(new ReloadHaproxyJob([
+            'reconfigure' => $reconfigure
+        ]));
     }
 
     public function configure()

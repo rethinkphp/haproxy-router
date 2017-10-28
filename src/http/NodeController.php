@@ -27,7 +27,7 @@ class NodeController extends BaseController
 
         $node = nodes()->create($attributes);
 
-        haproxy()->reload(true);
+        haproxy()->reloadAsync(true);
 
         return $this->ok($node);
     }
@@ -43,7 +43,7 @@ class NodeController extends BaseController
 
         $node = nodes()->update($node, $request->body->all());
 
-        haproxy()->reload(true);
+        haproxy()->reloadAsync(true);
 
         return $this->ok($node, 200);
     }
@@ -54,7 +54,7 @@ class NodeController extends BaseController
 
         nodes()->delete($node);
 
-        haproxy()->reload(true);
+        haproxy()->reloadAsync(true);
 
         return $this->noContent();
     }

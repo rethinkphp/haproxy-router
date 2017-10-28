@@ -22,7 +22,7 @@ class ServiceController extends BaseController
 
         $service = services()->create($body->all());
 
-        haproxy()->reload(true);
+        haproxy()->reloadAsync(true);
 
         return $this->ok($service);
     }
@@ -31,7 +31,7 @@ class ServiceController extends BaseController
     {
         $service = services()->update($name, $request->body->all());
 
-        haproxy()->reload(true);
+        haproxy()->reloadAsync(true);
 
         return $this->ok($service, 200);
     }
@@ -45,7 +45,7 @@ class ServiceController extends BaseController
     {
         services()->delete($name);
 
-        haproxy()->reload(true);
+        haproxy()->reloadAsync(true);
 
         return $this->noContent();
     }

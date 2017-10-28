@@ -28,7 +28,7 @@ class DomainController extends BaseController
     {
         $domain = domains()->update($name, $request->body->all());
 
-        haproxy()->reload(true);
+        haproxy()->reloadAsync(true);
 
         return $this->ok($domain, 200);
     }
@@ -42,7 +42,7 @@ class DomainController extends BaseController
     {
         domains()->delete($name);
 
-        haproxy()->reload(true);
+        haproxy()->reloadAsync(true);
 
         return $this->noContent();
     }

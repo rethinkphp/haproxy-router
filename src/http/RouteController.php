@@ -28,7 +28,7 @@ class RouteController extends BaseController
 
         $route = routes()->create($attributes);
 
-        haproxy()->reload(true);
+        haproxy()->reloadAsync(true);
 
         return $this->ok($route);
     }
@@ -44,7 +44,7 @@ class RouteController extends BaseController
 
         $route = routes()->update($route, $request->body->all());
 
-        haproxy()->reload(true);
+        haproxy()->reloadAsync(true);
 
         return $this->ok($route, 200);
     }
@@ -55,7 +55,7 @@ class RouteController extends BaseController
 
         routes()->delete($route);
 
-        haproxy()->reload(true);
+        haproxy()->reloadAsync(true);
 
         return $this->noContent();
     }

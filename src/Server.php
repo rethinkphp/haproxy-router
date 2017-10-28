@@ -35,10 +35,25 @@ class Server extends SwServer
 
         if (func_get_arg(1) >= $this->numWorkers) {
             app()->bootstrapIfNeeded();
+            app()->server = $this;
+
+            $this->sw->tick(1000, [queue(), 'run']);
 
             // trying to refresh certificates every 10 minutes
             $this->sw->tick(1000 * 600, [acme(), 'refreshCertificatesIfNeeded']);
         }
+    }
+
+    public function task($data)
+    {
+        return $this->sw->task($data);
+    }
+
+    public function onTask($server, $taskId, $fromId, $data)
+    {
+        queue()->insert($data);
+
+        return true;
     }
 
     public function run()

@@ -90,6 +90,14 @@ function acme()
     return app('acme');
 }
 
+/**
+ * @return \rethink\hrouter\queue\Queue
+ */
+function queue()
+{
+    return app('queue');
+}
+
 function get_existed_path($path)
 {
     if (!file_exists($path)) {
