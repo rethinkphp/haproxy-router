@@ -17,6 +17,8 @@ use AcmePhp\Ssl\CertificateResponse;
 use AcmePhp\Ssl\DistinguishedName;
 use AcmePhp\Ssl\Generator\KeyPairGenerator;
 use AcmePhp\Ssl\KeyPair;
+use AcmePhp\Ssl\ParsedCertificate;
+use AcmePhp\Ssl\Parser\CertificateParser;
 use AcmePhp\Ssl\Parser\KeyParser;
 use AcmePhp\Ssl\PrivateKey;
 use AcmePhp\Ssl\PublicKey;
@@ -236,13 +238,6 @@ end:
             ));
         }
 
-        if ($domain->certificate) {
-            throw new InvalidParamException(sprintf(
-                'The domain: "%s" is already has a certificate, requestCertificate() should be used instead',
-                $domain->name
-            ));
-        }
-
         $distinguishedName = $this->getDistinguishedName($domain);
 
         $keyPair = $this->getOrCreateDomainKeyPair($domain);
@@ -292,8 +287,8 @@ end:
         try {
             if (!$domain->isCertificateRequested()) {
                 $this->handleCertificateRequest($domain);
-            } else if ($domain->isReviewRequired()) {
-                $this->handleCertificateRenew($domain);
+            } else {
+                $this->handleCertificateRenewIfNeeded($domain);
             }
         } catch (\Throwable $e) {
             app()->errorHandler->handleException($e);
@@ -314,8 +309,23 @@ end:
         $this->requestCertificate($domain);
     }
 
-    protected function handleCertificateRenew(Domain $domain)
+    public function handleCertificateRenewIfNeeded(Domain $domain)
     {
-        // TBD
+        $certificate = new Certificate(Json::decode($domain->certificate)[0]);
+
+        /** @var ParsedCertificate $parsed */
+        $parsed = (new CertificateParser())->parse($certificate);
+
+        if ($parsed->getValidTo()->getTimestamp() - time() >= 604800) {
+            return;
+        }
+
+        logger()->info(sprintf(
+            'Current certificate will expire in less than a week (%s), renewal is required.',
+            $parsed->getValidTo()->format('Y-m-d H:i:s'))
+        );
+
+        logger()->info('renew certificate for ' . $domain->name);
+        return $this->requestCertificate($domain);
     }
 }

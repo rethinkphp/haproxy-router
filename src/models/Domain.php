@@ -60,10 +60,4 @@ class Domain extends Model
     {
         return (boolean)$this->certificate;
     }
-
-    public function isReviewRequired()
-    {
-        // TODO
-        return false;
-    }
 }
