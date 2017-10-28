@@ -141,12 +141,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/bixuehujin/blink.git",
-                "reference": "a165277c323a5143ffdb734a4b7ea9b60f6f594a"
+                "reference": "c8fa067977d4f2dc50ef7fba80c21880c4f20c6c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://files.phpcomposer.com/files/bixuehujin/blink/a165277c323a5143ffdb734a4b7ea9b60f6f594a.zip",
-                "reference": "a165277c323a5143ffdb734a4b7ea9b60f6f594a",
+                "url": "https://files.phpcomposer.com/files/bixuehujin/blink/c8fa067977d4f2dc50ef7fba80c21880c4f20c6c.zip",
+                "reference": "c8fa067977d4f2dc50ef7fba80c21880c4f20c6c",
                 "shasum": ""
             },
             "require": {
@@ -189,7 +189,7 @@
                 "restful",
                 "swoole"
             ],
-            "time": "2017-09-10 15:58:07"
+            "time": "2017-09-28 05:27:33"
         },
         {
             "name": "blink/i18n",
