@@ -88,10 +88,13 @@ return [
      *
      */
     'commands' => [
-        \rethink\hrouter\console\MigrateCommand::class,
+        rethink\hrouter\console\MigrateCommand::class,
         blink\laravel\database\commands\MakeCommand::class,
         blink\laravel\database\commands\ResetCommand::class,
-        rethink\hrouter\console\ServiceInstallCommand::class,
-        rethink\hrouter\console\ServiceUninstallCommand::class,
+        [
+            'class' => blink\console\ServiceInstallCommand::class,
+            'bin' => 'router',
+        ],
+        blink\console\ServiceUninstallCommand::class,
     ],
 ];

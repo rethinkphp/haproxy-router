@@ -107,42 +107,6 @@ function get_existed_path($path)
     return $path;
 }
 
-function whoami()
-{
-    return posix_getpwuid(posix_geteuid())['name'];
-}
-
-function root_privilege_is_required()
-{
-    if (whoami() !== 'root') {
-        throw new \RuntimeException('Root privilege is required to install service');
-    }
-}
-
-function pkg_config_is_required()
-{
-    system('which pkg-config >/dev/null', $retval);
-
-    if ($retval !== 0) {
-        throw new \RuntimeException('It seems pkg-config not missing from your system, please install it first');
-    }
-}
-
-function get_systemd_unit_dir()
-{
-    ob_start();
-
-    system('pkg-config systemd --variable=systemdsystemunitdir 2>&1', $retval);
-
-    $output = ob_get_clean();
-
-    if ($retval !== 0) {
-        throw new \RuntimeException("Unable to get the directory of systemd unit files:\n" . $output);
-    }
-
-    return trim($output);
-}
-
 function env($name, $default = null)
 {
     return getenv($name) ?: $default;
