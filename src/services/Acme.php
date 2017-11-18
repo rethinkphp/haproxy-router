@@ -328,4 +328,18 @@ end:
         logger()->info('renew certificate for ' . $domain->name);
         return $this->requestCertificate($domain);
     }
+
+    public function reset()
+    {
+        settings()->remove(self::SETTING_ACCOUNT_KEY_PAIR);
+        settings()->remove(self::SETTING_ACCOUNT_REGISTERED);
+
+        $domains = domains()->queryAll();
+
+        foreach ($domains as $domain) {
+            $domain->certificate = '';
+            $domain->key_pair = '';
+            $domain->save();
+        }
+    }
 }
