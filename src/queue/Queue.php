@@ -2,6 +2,7 @@
 
 namespace rethink\hrouter\queue;
 
+use blink\server\SwServer;
 use Psy\Util\Json;
 use SplPriorityQueue;
 use blink\core\Object;
@@ -45,7 +46,13 @@ class Queue extends Object
 
     public function push(Job $job)
     {
-        app()->server->task($job);
+        $server = app()->server;
+
+        if (!$server instanceof SwServer) {
+            return;
+        }
+
+        $server->task($job);
     }
 
     public function run()
