@@ -43,6 +43,7 @@ class Server extends SwServer
             $this->sw->tick(1000 * 600, [acme(), 'refreshCertificatesIfNeeded']);
 
             // trying to check updates every 60 minutes
+            $this->sw->after(1000, [app('assets'), 'downloadAssetsIfNeeded']);
             $this->sw->tick(1000 * 3600, [app('assets'), 'downloadAssetsIfNeeded']);
         }
     }
