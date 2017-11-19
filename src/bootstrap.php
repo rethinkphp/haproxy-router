@@ -1,6 +1,7 @@
 <?php
 
 defined('BLINK_ENV') or define('BLINK_ENV', getenv('BLINK_ENV') ?: 'dev');
+defined('ROUTER_VERSION') or define('ROUTER_VERSION', 'v0.1.0-alpha1');
 
 /**
  * Basic application configurations.

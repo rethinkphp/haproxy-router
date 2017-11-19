@@ -22,7 +22,7 @@ class IndexController extends Object
 
     protected function resolveRequestedPath($args)
     {
-        $basePath = app()->runtime . '/ui';
+        $basePath = app()->assets->getPath();
 
         if (empty($args)) {
             $args = ['index.html'];

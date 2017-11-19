@@ -86,6 +86,10 @@ return [
             ]
         ],
     ],
+    'assets' => [
+        'class' => \rethink\hrouter\services\Assets::class,
+        'customPath' => env('assets_custom_path'),
+    ],
     'log' => [
         'class' => 'blink\log\Logger',
         'targets' => [

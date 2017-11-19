@@ -41,6 +41,9 @@ class Server extends SwServer
 
             // trying to refresh certificates every 10 minutes
             $this->sw->tick(1000 * 600, [acme(), 'refreshCertificatesIfNeeded']);
+
+            // trying to check updates every 60 minutes
+            $this->sw->tick(1000 * 3600, [app('assets'), 'downloadAssetsIfNeeded']);
         }
     }
 
