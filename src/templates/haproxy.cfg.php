@@ -127,7 +127,9 @@ backend service_<?= $service['name'] ?>
 
 <?php endforeach ?>
 
-    option httpchk GET /
+<?php if ($line = $service->getCheckLine()):?>
+    <?= $line . PHP_EOL ?>
+<?php endif ?>
 
 <?php foreach ($service->nodes as $index => $node):?>
     <?= $this->generateServer($node) . PHP_EOL?>
