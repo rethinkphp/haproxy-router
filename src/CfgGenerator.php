@@ -190,6 +190,10 @@ class CfgGenerator extends Object
 
         $outdatedCertificates = array_diff($existedCertificates, $validCertificates);
 
+        if (empty($outdatedCertificates)) {
+            return;
+        }
+
         logger()->info('removing outdated certificates', $outdatedCertificates);
 
         array_map('unlink', $outdatedCertificates);
