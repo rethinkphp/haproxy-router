@@ -52,7 +52,11 @@ class Queue extends Object
             return;
         }
 
-        $server->task($job);
+        if (TASK_WORKER) {
+            $this->insert($job);
+        } else {
+            $server->task($job);
+        }
     }
 
     public function run()

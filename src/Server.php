@@ -34,6 +34,8 @@ class Server extends SwServer
         parent::onWorkerStart();
 
         if (func_get_arg(1) >= $this->numWorkers) {
+            define('TASK_WORKER', true);
+
             app()->bootstrapIfNeeded();
             app()->server = $this;
 
@@ -45,6 +47,8 @@ class Server extends SwServer
             // trying to check updates every 60 minutes
             $this->sw->after(1000, [app('assets'), 'downloadAssetsIfNeeded']);
             $this->sw->tick(1000 * 3600, [app('assets'), 'downloadAssetsIfNeeded']);
+        } else {
+            define('TASK_WORKER', false);
         }
     }
 
