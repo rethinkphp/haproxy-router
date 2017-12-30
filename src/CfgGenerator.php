@@ -184,6 +184,17 @@ class CfgGenerator extends Object
         return array_unique($certificates);
     }
 
+    protected function removeInvalidCertificates($validCertificates)
+    {
+        $existedCertificates = glob($this->configDir . '/certs/*.pem');
+
+        $outdatedCertificates = array_diff($existedCertificates, $validCertificates);
+
+        logger()->info('removing outdated certificates', $outdatedCertificates);
+
+        array_map('unlink', $outdatedCertificates);
+    }
+
     /**
      * Generate config file for HAProxy.
      *
@@ -206,8 +217,11 @@ class CfgGenerator extends Object
             'tls-hosts.map' => $this->generateTlsHosts(),
         ];
 
+        $validCertificates = [];
+
         foreach ($this->generateCertificates() as $name => $certificate) {
             $files['certs/' . $name] = $certificate;
+            $validCertificates[] = $this->configDir . '/certs/' . $name;
         }
 
         foreach ($files as $name => $content) {
@@ -215,6 +229,8 @@ class CfgGenerator extends Object
 
             file_put_contents($configFile, $content);
         }
+
+        $this->removeInvalidCertificates($validCertificates);
 
         return $this->configDir . '/haproxy.cfg';
     }
