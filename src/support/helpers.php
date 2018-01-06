@@ -109,5 +109,7 @@ function get_existed_path($path)
 
 function env($name, $default = null)
 {
-    return getenv($name) ?: $default;
+    $value = getenv($name);
+
+    return $value !== false ? $value : $default;
 }
